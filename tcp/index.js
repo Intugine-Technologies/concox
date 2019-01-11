@@ -4,7 +4,7 @@ const axios = require('axios');
 const terminals_connected = [];
 const logger = require('pino')().child({ source: 'CONCOX_TCP_SERVER' });
 const config = require('../config');
-mqtt_publisher = require('./mqtt_publisher');
+const mqtt_publisher = require('./mqtt_publisher');
 const API_BASE = `http://localhost:${config.CONCOX_API_PORT}/concox`;
 server.on('connection', (socket) => {
     socket.setEncoding('hex');
@@ -69,7 +69,7 @@ const data_middleware = (data) => {
             })
             .then((r) => {
                 data = data.map(i => Object.assign({}, i, {device: (r && r.data ? r.data.id : 'NA')}));
-                send_data_to_api(data);
+                send_data_to_api(data, (r.data ? r.data.client : null));
             })
             .catch((e) => {
                 logger.error({event: 'get_last_loc', data, err: e.response ? e.response.data : e});
@@ -79,8 +79,8 @@ const data_middleware = (data) => {
 };
 const get_last_loc = (imei) => axios({ url: `${API_BASE}/last_location/${imei}` });
 const get_device = (imei) => axios({ url: `${API_BASE}/device/${imei}` });
-const send_data_to_api = (data) => {
-
+const send_data_to_api = (data, client) => {
+    if(client) mqtt_publisher.publish(client, JSON.stringify(data));
     axios({
             url: `${API_BASE}/data`,
             method: 'POST',
