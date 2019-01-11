@@ -59,7 +59,7 @@ const data_middleware = (data) => {
     if (data[0].imei) {
         get_device(data[0].imei)
             .then((r) => {
-                client = r & r.data ? r.data.client : null;
+                client = r && r.data ? r.data.client : null;
                 data = data.map(i => Object.assign({}, i, { device: (r && r.data ? r.data.id : 'NA') }));
                 if (data[0].case === '01') send_data_to_api(data, client);
                 else if (data[0].loc) send_data_to_api(data, client);
