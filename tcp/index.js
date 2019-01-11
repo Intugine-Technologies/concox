@@ -55,12 +55,14 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const data_middleware = (data) => {
+    let client = null;
     if (data[0].imei) {
         get_device(data[0].imei)
             .then((r) => {
+                client = r & r.data ? r.data.client : null;
                 data = data.map(i => Object.assign({}, i, { device: (r && r.data ? r.data.id : 'NA') }));
-                if (data[0].case === '01') send_data_to_api(data);
-                else if (data[0].loc) send_data_to_api(data);
+                if (data[0].case === '01') send_data_to_api(data, client);
+                else if (data[0].loc) send_data_to_api(data, client);
                 else {
                     get_last_loc(data[0].imei)
                         .then((r) => {
@@ -69,7 +71,7 @@ const data_middleware = (data) => {
                             } else {
                                 logger.info({ event: 'No Location Available', data });
                             }
-                            send_data_to_api(data, (r.data ? r.data.client : null));
+                            send_data_to_api(data, client);
                         }, (e) => {
                             console.error(e);
                         });
