@@ -65,7 +65,7 @@ const data_middleware = (data) => {
                     get_last_loc(data[0].imei)
                         .then((r) => {
                             if (r && r.data) {
-                                data = data.map(i => Object.assign({}, i, { loc: r.data.loc }));
+                                data = data.map(i => Object.assign({}, i, { gps: r.data.loc }));
                             } else {
                                 logger.info({ event: 'No Location Available', data });
                             }
