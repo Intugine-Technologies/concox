@@ -4,7 +4,7 @@ const axios = require('axios');
 const terminals_connected = [];
 const logger = require('pino')().child({ source: 'CONCOX_TCP_SERVER' });
 const config = require('../config');
-const mqtt_publisher = require('./mqtt_publisher');
+const mqtt_publisher = require('../mqtt_publisher');
 const API_BASE = `http://localhost:${config.CONCOX_API_PORT}/concox`;
 server.on('connection', (socket) => {
     socket.setEncoding('hex');
