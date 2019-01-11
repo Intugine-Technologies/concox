@@ -62,11 +62,14 @@ const data_middleware = (data) => {
             .then((r) => {
                 if(r && r.data){
                     data = data.map(i => Object.assign({}, i, {loc: r.data.loc}));
-                    send_data_to_api(data);
                 } else {
-                    send_data_to_api(data);
                     logger.info({event: 'No Location Available', data});
                 }
+                return get_device(data[0].imei);
+            })
+            .then((r) => {
+                data = data.map(i => Object.assign({}, i, {device: (r && r.data ? r.data.id : 'NA')}));
+                send_data_to_api(data);
             })
             .catch((e) => {
                 logger.error({event: 'get_last_loc', data, err: e.response ? e.response.data : e});
@@ -75,6 +78,7 @@ const data_middleware = (data) => {
     return;
 };
 const get_last_loc = (imei) => axios({ url: `${API_BASE}/last_location/${imei}` });
+const get_device = (imei) => axios({ url: `${API_BASE}/device/${imei}` });
 const send_data_to_api = (data) => {
 
     axios({
