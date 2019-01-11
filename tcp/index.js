@@ -4,6 +4,7 @@ const axios = require('axios');
 const terminals_connected = [];
 const logger = require('pino')().child({ source: 'CONCOX_TCP_SERVER' });
 const config = require('../config');
+mqtt_publisher = require('./mqtt_publisher');
 const API_BASE = `http://localhost:${config.CONCOX_API_PORT}/concox`;
 server.on('connection', (socket) => {
     socket.setEncoding('hex');
@@ -75,6 +76,7 @@ const data_middleware = (data) => {
 };
 const get_last_loc = (imei) => axios({ url: `${API_BASE}/last_location/${imei}` });
 const send_data_to_api = (data) => {
+
     axios({
             url: `${API_BASE}/data`,
             method: 'POST',

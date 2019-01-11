@@ -50,6 +50,17 @@ app.get('/concox/invalid_data', (req, res) => {
 		});
 });
 
+app.get('/concox/device/:imei',(req, res) => {
+	db.read('devices', {imei: req.params.imei})
+		.then((r) => {
+			res.json(r[0]);
+		})
+		.catch((e) => {
+			logger.error({method: 'GET', event: '/concox/device/:imei', err: e});
+			res.sendStatus(500);
+		});
+});
+
 app.get('/concox/', (req, res) => {
 	const limit = req.query.limit === 'all' ? 'all' : parseInt(req.query.limit || 10);
 	db.read('status', {}, limit)
