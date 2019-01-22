@@ -28,7 +28,7 @@ app.post('/concox/data', (req, res) => {
 });
 
 app.post('/concox/invalid_data', (req, res) => {
-	db.create('invalid_status', req.body.data)
+	db.create('invalid_status', req.body)
 		.then((r) => {
 			res.sendStatus(200);
 		})
