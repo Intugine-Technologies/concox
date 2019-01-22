@@ -6,7 +6,7 @@ app.use(body_parser.json());
 let db = null;
 const config = require('../config');
 app.get('/concox/last_location/:imei', (req, res) => {
-	db.read('status', {imei: req.params.imei, loc: {$exists: true}})
+	db.read('status', {imei: req.params.imei, gps: {$exists: true}})
 		.then((r) => {
 			res.json(r[0]);
 		})
