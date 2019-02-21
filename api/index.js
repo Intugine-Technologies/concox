@@ -16,6 +16,17 @@ app.get('/concox/last_location/:imei', (req, res) => {
 		});
 });
 
+app.get('/concox/last_battery/:imei', (req, res) => {
+	db.read('status', {imei: req.params.imei, battery: {$exists: true}})
+		.then((r) => {
+			res.json(r[0]);
+		})
+		.catch((e) => {
+			logger.error({method: 'GET', event: '/concox/last_battery/:imei', err: e});
+			res.sendStatus(500);
+		})
+});
+
 app.post('/concox/data', (req, res) => {
 	db.create('status', req.body.data)
 		.then((r) => {
