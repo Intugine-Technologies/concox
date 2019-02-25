@@ -68,7 +68,7 @@ const data_middleware = (data) => {
             ])
             .then(r => {
               if (r && r[0] && r[0].data) {
-                data = data.map(i => ({ ...i, gps: r[0].data.gps }));
+                data = data.map(i => ({ ...i, gps: i.gps || r[0].data.gps }));
               } else {
                 logger.info({ event: 'No Location Available', data });
               }
