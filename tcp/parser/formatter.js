@@ -1,5 +1,6 @@
-const helpers = require('./helpers');
 const moment = require('moment');
+const helpers = require('./helpers');
+
 module.exports = (__case__, __data) => {
   if (__case__ === '01') {
     const prefix = `0501${__data.slice(32, 36)}`;
@@ -11,7 +12,7 @@ module.exports = (__case__, __data) => {
       model: __data.slice(24, 28),
       tzl: __data.slice(28, 32),
       timezone: parseInt(__data.slice(28, 31), 16) / 100,
-      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix)))
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
   if (__case__ === '10') {
@@ -26,7 +27,7 @@ module.exports = (__case__, __data) => {
       speed: parseInt(__data.slice(38, 40), 16),
       course: __data.slice(40, 44),
       language: parseInt(__data.slice(44, 48), 16) === 2 ? 'English' : 'Chinese',
-      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix)))
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
   if (__case__ === '11') {
@@ -36,12 +37,30 @@ module.exports = (__case__, __data) => {
       tag: 'LBS Info',
       case: '11',
       date: helpers.date(__data.slice(8, 20)),
-      cellTower: [parseInt(__data.slice(20, 24), 16), //MCC
-        parseInt(__data.slice(24, 26), 16), //MNC
-        parseInt(__data.slice(26, 30), 16), //LAC
-        parseInt(__data.slice(30, 36), 16) //Cell ID
+      cellTower: [parseInt(__data.slice(20, 24), 16),
+        parseInt(__data.slice(24, 26), 16),
+        parseInt(__data.slice(26, 30), 16),
+        parseInt(__data.slice(30, 36), 16),
       ],
-      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix)))
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
+    };
+  }
+  if (__case__ === '12') {
+    return {
+      input: __data,
+      tag: 'GPS Location Packet',
+      case: '12',
+      date: helpers.date(__data.slice(8, 20)),
+      noSatellites: parseInt(__data.slice(21, 22), 16),
+      gps: helpers.loc_at4(__data.slice(22, 38)),
+      speed: parseInt(__data.slice(38, 40), 16),
+      course: __data.slice(40, 44),
+      cellTower: [parseInt(__data.slice(44, 48), 16),
+        parseInt(__data.slice(48, 50), 16),
+        parseInt(__data.slice(50, 54), 16),
+        parseInt(__data.slice(54, 60), 16),
+      ],
+      output: null,
     };
   }
   if (__case__ === '13') {
@@ -54,6 +73,36 @@ module.exports = (__case__, __data) => {
       voltage: helpers.voltage(__data.slice(10, 12)),
       battery: helpers.battery(helpers.voltage(__data.slice(10, 12))),
       gsmStrength: helpers.gsmStrength(__data.slice(12, 14)),
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
+    };
+  }
+  if (__case__ === '22') {
+    return {
+      input: __data,
+      tag: 'GPS Location Packet',
+      case: '22',
+      date: helpers.date(__data.slice(8, 20)),
+      noSatellites: parseInt(__data.slice(21, 22), 16),
+      gps: helpers.loc_at4(__data.slice(22, 38)),
+      speed: parseInt(__data.slice(38, 40), 16),
+      course: __data.slice(40, 44),
+      cellTower: [parseInt(__data.slice(44, 48), 16),
+        parseInt(__data.slice(48, 50), 16),
+        parseInt(__data.slice(50, 54), 16),
+        parseInt(__data.slice(54, 60), 16),
+      ],
+      output: null,
+    };
+  }
+  if (__case__ === '23') {
+    const prefix = `0523${__data.slice(18, 22)}`;
+    return {
+      input: __data,
+      tag: 'Hearbeat Packet',
+      case: '23',
+      terminalInfo: __data.slice(8, 10),
+      battery: helpers.battery_percentage(__data.slice(10, 14)),
+      gsmStrength: helpers.gsmStrength(__data.slice(14, 16)),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -72,7 +121,7 @@ module.exports = (__case__, __data) => {
       cellTower: [parseInt(__data.slice(50, 54), 16),
         parseInt(__data.slice(54, 56), 16),
         parseInt(__data.slice(56, 60), 16),
-        parseInt(__data.slice(60, 66), 16)
+        parseInt(__data.slice(60, 66), 16),
       ],
       terminalInfo: __data.slice(66, 68),
       voltage: helpers.voltage(__data.slice(68, 70)),
@@ -91,10 +140,10 @@ module.exports = (__case__, __data) => {
       cellTower: [parseInt(__data.slice(8, 12), 16),
         parseInt(__data.slice(12, 14), 16),
         parseInt(__data.slice(14, 18), 16),
-        parseInt(__data.slice(18, 24), 16)
+        parseInt(__data.slice(18, 24), 16),
       ],
       phone: __data.slice(24, 66),
-      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix)))
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
   if (__case__ === '18') {
@@ -108,40 +157,39 @@ module.exports = (__case__, __data) => {
         parseInt(__data.slice(20, 24), 16),
         parseInt(__data.slice(24, 26), 16),
         parseInt(__data.slice(26, 30), 16),
-        parseInt(__data.slice(30, 34), 16)
+        parseInt(__data.slice(30, 34), 16),
       ],
       RSSI: parseInt(__data.slice(34, 36), 16),
       neighbouringCells: [{
-          lac: parseInt(__data.slice(36, 40), 16),
-          ci: parseInt(__data.slice(40, 44), 16),
-          rssi: parseInt(__data.slice(44, 46), 16)
-        },
-        {
-          lac: parseInt(__data.slice(46, 50), 16),
-          ci: parseInt(__data.slice(50, 54), 16),
-          rssi: parseInt(__data.slice(54, 56), 16)
-        },
-        {
-          lac: parseInt(__data.slice(56, 60), 16),
-          ci: parseInt(__data.slice(60, 64), 16),
-          rssi: parseInt(__data.slice(64, 66), 16)
-        },
-        {
-          lac: parseInt(__data.slice(66, 70), 16),
-          ci: parseInt(__data.slice(70, 74), 16),
-          rssi: parseInt(__data.slice(74, 76), 16)
-        },
-        {
-          lac: parseInt(__data.slice(76, 80), 16),
-          ci: parseInt(__data.slice(80, 84), 16),
-          rssi: parseInt(__data.slice(84, 86), 16)
-        },
-        {
-          lac: parseInt(__data.slice(86, 90), 16),
-          ci: parseInt(__data.slice(90, 94), 16),
-          rssi: parseInt(__data.slice(94, 96), 16)
-        }
-      ]
+        lac: parseInt(__data.slice(36, 40), 16),
+        ci: parseInt(__data.slice(40, 44), 16),
+        rssi: parseInt(__data.slice(44, 46), 16),
+      },
+      {
+        lac: parseInt(__data.slice(46, 50), 16),
+        ci: parseInt(__data.slice(50, 54), 16),
+        rssi: parseInt(__data.slice(54, 56), 16),
+      },
+      {
+        lac: parseInt(__data.slice(56, 60), 16),
+        ci: parseInt(__data.slice(60, 64), 16),
+        rssi: parseInt(__data.slice(64, 66), 16),
+      },
+      {
+        lac: parseInt(__data.slice(66, 70), 16),
+        ci: parseInt(__data.slice(70, 74), 16),
+        rssi: parseInt(__data.slice(74, 76), 16),
+      },
+      {
+        lac: parseInt(__data.slice(76, 80), 16),
+        ci: parseInt(__data.slice(80, 84), 16),
+        rssi: parseInt(__data.slice(84, 86), 16),
+      },
+      {
+        lac: parseInt(__data.slice(86, 90), 16),
+        ci: parseInt(__data.slice(90, 94), 16),
+        rssi: parseInt(__data.slice(94, 96), 16),
+      }],
     };
   }
   if (__case__ === '19') {
@@ -153,15 +201,15 @@ module.exports = (__case__, __data) => {
       cellTower: [parseInt(__data.slice(8, 12), 16),
         parseInt(__data.slice(12, 14), 16),
         parseInt(__data.slice(14, 18), 16),
-        parseInt(__data.slice(18, 24), 16)
+        parseInt(__data.slice(18, 24), 16),
       ],
       voltage: helpers.voltage(__data.slice(26, 28)),
       battery: helpers.battery(helpers.voltage(__data.slice(26, 28))),
       gsmStrength: helpers.gsmStrength(__data.slice(28, 30)),
-      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix)))
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
-  if (__case__ === '1A') {
+  if (__case__ === '1a') {
     const prefix = `000B9700CA00000001${__data.slice(48, 52)}`;
     return {
       input: __data,
@@ -178,7 +226,7 @@ module.exports = (__case__, __data) => {
     };
   }
   if (__case__ === '8a') {
-    let date = moment.utc().format("YY-MM-DD-HH-mm-ss").toString().replace(/-/g, "");
+    const date = moment.utc().format('YY-MM-DD-HH-mm-ss').toString().replace(/-/g, '');
     const prefix = `0B8A${date}${__data.slice(8, 12)}`;
     return {
       input: __data,
@@ -189,7 +237,7 @@ module.exports = (__case__, __data) => {
     };
   }
   return {
-    input: i,
-    output: null
+    input: __data,
+    output: null,
   };
 };

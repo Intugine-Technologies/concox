@@ -66,32 +66,17 @@ const data_middleware = (data) => {
               get_last_loc(data[0].imei),
               get_last_battery(data[0].imei)
             ])
-            .then(r => {
+            .then((r) => {
               if (r && r[0] && r[0].data) {
                 data = data.map(i => ({ ...i, gps: i.gps || r[0].data.gps }));
-              } else {
-                logger.info({ event: 'No Location Available', data });
               }
               if (r && r[1] && r[1].data) {
                 data = data.map(i => ({ ...i, battery: i.battery || r[1].data.battery }));
-              } else {
-                logger.info({ event: 'No Battery Available', data });
               }
               send_data_to_api(data, client);
             }, e => {
               logger.error({ event: 'Error Fetching Last location', data, err: e.response.data });
             });
-          // get_last_loc(data[0].imei)
-          //   .then((r) => {
-          //     if (r && r.data) {
-          //       data = data.map(i => Object.assign({}, i, { gps: r.data.gps }));
-          //     } else {
-          //       logger.info({ event: 'No Location Available', data });
-          //     }
-          //     send_data_to_api(data, client);
-          //   }, (e) => {
-          //     logger.error({ event: 'Error Sending to API', data, err: e.response.data });
-          //   });
         }
       })
       .catch((e) => {
@@ -104,7 +89,7 @@ const get_last_loc = imei => axios({ url: `${API_BASE}/last_location/${imei}` })
 const get_last_battery = imei => axios({ url: `${API_BASE}/last_battery/${imei}` });
 const get_device = imei => axios({ url: `${API_BASE}/device/${imei}` });
 const send_data_to_api = (data, client) => {
-  if (client) mqtt_publisher.publish(client, JSON.stringify(data));
+  if (client && data[0].case !== '01') mqtt_publisher.publish(client, JSON.stringify(data));
   axios({
       url: `${API_BASE}/data`,
       method: 'POST',

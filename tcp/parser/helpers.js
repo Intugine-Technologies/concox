@@ -1,6 +1,9 @@
 const crc16 = require('./crc16.js');
 
 const addZero = __num => (__num >= 10 ? __num : `0${__num}`);
+const batteryPercentage = __data => (100 - (100 * (
+  (4.2 - parseFloat(parseInt(__data, 16) / 100)) / (4.2 - 3.65)
+)));
 const battery = (voltage) => {
   switch (voltage) {
     case 'No power(shutdown)':
@@ -39,6 +42,10 @@ const loc = (__str) => {
   const minLng = tlng % 60;
   return [degLat + minLat / 60, degLng + minLng / 60];
 };
+const locAT4 = __str => [
+  parseFloat(parseInt(__str.slice(0, 8), 16) / (1800000)),
+  parseFloat(parseInt(__str.slice(8, 16), 16) / (1800000)),
+];
 const voltage = (__str) => {
   switch (parseInt(__str, 16)) {
     case 0:
@@ -110,8 +117,10 @@ module.exports = {
   crc16,
   date,
   loc,
+  loc_at4: locAT4,
   voltage,
   gsmStrength,
+  battery_percentage: batteryPercentage,
   alarm,
   appendStartEnd,
   battery,
