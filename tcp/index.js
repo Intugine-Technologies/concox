@@ -37,9 +37,13 @@ server.on('connection', (socket) => {
     logger.error({ event: 'error', err, client });
   });
   socket.on('close', () => {
+    const index = terminals_connected.findIndex(k => k.remoteAddress === socket.remoteAddress);
+    if(index > -1) terminals_connected.splice(index, 1);
     logger.info({ event: 'close', client });
   });
   socket.on('end', () => {
+    const index = terminals_connected.findIndex(k => k.remoteAddress === socket.remoteAddress);
+    if(index > -1) terminals_connected.splice(index, 1);
     logger.info({ event: 'end', client });
   });
 });
