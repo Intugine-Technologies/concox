@@ -100,6 +100,7 @@ module.exports = (__case__, __data) => {
       input: __data,
       tag: 'Hearbeat Packet',
       case: '23',
+      date: new Date(),
       terminalInfo: __data.slice(8, 10),
       battery: helpers.battery_percentage(__data.slice(10, 14)),
       gsmStrength: helpers.gsmStrength(__data.slice(14, 16)),
@@ -230,7 +231,7 @@ module.exports = (__case__, __data) => {
     const prefix = `0B8A${date}${__data.slice(8, 12)}`;
     return {
       input: __data,
-      date,
+      date: new Date(),
       case: '8A',
       tag: 'Time Check Packet info',
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
