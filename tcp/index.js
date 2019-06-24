@@ -8,7 +8,7 @@ const mqtt_publisher = require("../mqtt_publisher");
 const terminals_connected = [];
 const API_BASE = `http://localhost:${config.CONCOX_API_PORT}/concox`;
 const devices_data = {};
-const fs = require('fs');
+const fs = require("fs");
 const devices = {
   set: data => {
     if (data) devices_data[data.imei] = { ...devices_data[data.imei], ...data };
@@ -94,7 +94,6 @@ server.on("error", err => {
 });
 server.on("close", err => {
   logger.log({ event: "Server close", err });
-
 });
 process.on("unhandledRejection", (reason, promise) => {
   logger.error({
@@ -115,6 +114,7 @@ const data_middleware = data => {
             ...k,
             device: r.id,
             client: r.client,
+            gps: k.gps || (["13", "23"].indexOf(k.case) > -1 ? r.gps : null),
             battery: k.battery || r.battery
           })),
           client
@@ -128,8 +128,8 @@ const data_middleware = data => {
 };
 
 const send_data_to_api = (data, client) => {
-  devices.set({...data[0]});
   if (client && data[0].gps) {
+    devices.set({ ...data[0] });
     mqtt_publisher.publish(client, JSON.stringify(data));
   }
   axios({

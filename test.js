@@ -26,9 +26,9 @@ mongo(config.DB_URI, "furlenco")
 					setTimeout(() => {
 						client.write(new Buffer(k.input, 'hex'));
 						console.log(index + 1, new Date(k.date), k.gps)
-					}, (index + 1) * 100)
+					}, (index + 1) * 10)
 				});
-			}, 100)
+			}, 10)
 		});
 
 		console.log(r.length);
