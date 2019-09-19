@@ -1,6 +1,7 @@
 const api_handler = require('./api_handler.js');
 const imei_manager = require('./imei_manager.js');
 const device_data_manager = require('./device_data_manager.js');
+const mqtt_publisher = require("../mqtt_publisher");
 const object__ = {
     imei_manager,
     device_data_manager,

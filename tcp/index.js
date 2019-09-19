@@ -1,7 +1,6 @@
 const server = require("net").createServer();
 const parser = require("./parser");
 const config = require("../config");
-const mqtt_publisher = require("../mqtt_publisher");
 const helpers = require("./helpers.js");
 
 server.on("connection", socket => {
