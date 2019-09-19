@@ -102,6 +102,7 @@ module.exports = (__case__, __data) => {
       case: '23',
       date: new Date(),
       terminalInfo: __data.slice(8, 10),
+      voltage: parseFloat(parseInt(__data.slice(10, 14), 16) / 100),
       battery: helpers.battery_percentage(__data.slice(10, 14)),
       gsmStrength: helpers.gsmStrength(__data.slice(14, 16)),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
