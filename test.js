@@ -2,8 +2,7 @@ const mongo = require("@intugine-technologies/mongodb");
 const net = require("net");
 var client = new net.Socket();
 const config = {
-	DB_URI:
-		"mongodb+srv://intugine:NkVPR6VQUEXhyUwYHgQg4hjHspDH5k9a@cluster0-zhjde.mongodb.net"
+	DB_URI: process.env.DB_URI
 };
 
 let db = null;
