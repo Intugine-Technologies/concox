@@ -5,9 +5,10 @@ const addZero = __num => (__num >= 10 ? __num : `0${__num}`);
 
 const batteryPercentage = (__data) => {
   const volt = parseFloat(parseInt(__data, 16)/100);
+  if(!volt || typeof(volt) !== 'number') return null;
   if(volt <= 3.65) return 0;
   if(volt >= 4.2) return 100;
-  else return battery_profile.find(k => k[1] >= volt)[0]
+  return (battery_profile.find(k => k[1] >= volt) || [null])[0]
 } 
 
 // const batteryPercentage = __data => (100 - (100 * (
