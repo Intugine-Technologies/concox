@@ -5,6 +5,7 @@ const logger = require('pino')().child({ source: 'CONCOX_SERVER_API' });
 app.use(body_parser.json());
 let db = null;
 const config = require('../config');
+
 app.get('/concox/last_location/:imei', (req, res) => {
 	db.read('status', {imei: req.params.imei, gps: {$exists: true}})
 		.then((r) => {
@@ -59,6 +60,16 @@ app.get('/concox/invalid_data', (req, res) => {
 			logger.error({method: 'GET', event: '/concox/invalid_data', err: e});
 			res.sendStatus(500);
 		});
+});
+
+app.get('/concox/devices/', (req, res, next) => {
+	db.read('devices', {}, 'all')
+		.then((r) => {
+			res.json(r);
+		})
+		.catch((e) => {
+			res.sendStatus(500);
+		})
 });
 
 app.get('/concox/device/:imei',(req, res) => {
