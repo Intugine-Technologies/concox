@@ -1,12 +1,12 @@
 const api_handler = require("./api_handler.js");
 const devices_data = {};
-const fetch_devices_previous_data = async () => {
+const fetch_devices_previous_data = () => {
     api_handler({
         url: '/devices',
     })
     .then((r) => {
         r.forEach((k, kdx) => {
-            setTimeout(() => {
+            setTimeout(async () => {
                 const data = await api_handler({ url: `/device/${k.imei}` });
                 if(data && !devices_data[data.imei] && data.gps){
                     devices_data[k.imei] = {
