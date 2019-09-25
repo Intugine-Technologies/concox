@@ -2,11 +2,20 @@ const server = require("net").createServer();
 const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
+const inspector = require('event-loop-inspector')();
+const app = require('express')();
+
+app.get('/inspector', (req, res) => {
+    res.json(inspector.dump());
+});
+
+app.listen(9999, () => {
+    console.log('Event loop inspector listening');
+});
 
 server.on("connection", socket => {
     socket.setEncoding("hex");
     const client = `${socket.remoteAddress}:${socket.remotePort}`;
-    console.info({ event: "connection", client });
     socket.on("data", data => {
         const parsed__ = parser(data);
         if (
@@ -40,15 +49,19 @@ server.on("connection", socket => {
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {
-        console.error({ event: "error", err, client });
+        console.error({ event: "error", err, remoteAddress: socket.remoteAddress });
     });
     socket.on("close", () => {
         helpers.imei_manager.delete(socket.remoteAddress)
-        console.info({ event: "close", client });
+        console.info({ event: "close", remoteAddress: socket.remoteAddress });
+    });
+    socket.setTimeout(10000, () => {
+        console.log('Socket Timeout', socket.remoteAddress);
+        socket.destroy();
     });
     socket.on("end", () => {
         helpers.imei_manager.delete(socket.remoteAddress)
-        console.info({ event: "end", client });
+        console.info({ event: "end", remoteAddress: socket.remoteAddress });
     });
 });
 server.on("error", err => {

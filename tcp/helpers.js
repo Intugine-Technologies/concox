@@ -41,7 +41,6 @@ const object__ = {
             });
         return;
     },
-
 };
 
 object__.data_middleware = data => {

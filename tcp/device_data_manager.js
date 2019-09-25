@@ -5,10 +5,10 @@ const fetch_devices_previous_data = () => {
         url: '/devices',
     })
     .then((r) => {
-        r.forEach((k, kdx) => {
+        r.data.forEach((k, kdx) => {
             setTimeout(async () => {
                 const data = await api_handler({ url: `/device/${k.imei}` });
-                if(data && !devices_data[data.imei] && data.gps){
+                if(data && !devices_data[k.imei] && data.gps){
                     devices_data[k.imei] = {
                         id: k.id || 'NA',
                         client: k.client || null,
@@ -23,7 +23,9 @@ const fetch_devices_previous_data = () => {
         console.error('Some error in setting previous devices data');
     });
 };
-fetch_devices_previous_data();
+setTimeout(() => {
+    fetch_devices_previous_data();
+}, 2000);
 
 const obj = {
     set: data => {

@@ -65,3 +65,6 @@ config.json
 
 #setup file
 setup.sh
+
+#user-data file
+user_data.sh
