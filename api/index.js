@@ -98,7 +98,7 @@ mongo(config.DB_URI, config.DB_NAME)
 	.then((DB) => {
 		db = DB;
 		app.listen(config.CONCOX_API_PORT, () => {
-			console.error({event: 'CONCOX_SERVER_API STARTED', PORT: config.CONCOX_API_PORT});
+			console.log({event: 'CONCOX_SERVER_API STARTED', PORT: config.CONCOX_API_PORT});
 		});
 	})
 	.catch((e) => {
