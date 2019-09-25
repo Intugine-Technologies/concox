@@ -13,6 +13,7 @@
     "agentkeepalive": "^4.0.2",
     "axios": "^0.18.1",
     "body-parser": "^1.19.0",
+    "event-loop-inspector": "^1.2.2",
     "express": "^4.17.1",
     "moment": "^2.24.0",
     "mqtt": "^2.18.8",
