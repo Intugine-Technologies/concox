@@ -29,10 +29,12 @@ server.on("connection", socket => {
                 parsed__[0].case === "01" ?
                 helpers.imei_manager.set(
                     parsed__[0].imei,
-                    socket.remoteAddress
+                    socket.remoteAddress,
+                    socket.remotePort
                 ) :
                 helpers.imei_manager.get(
-                    socket.remoteAddress
+                    socket.remoteAddress,
+                    socket.remotePort
                 );
             const parsed = parsed__.map(k => Object.assign({}, k, { imei }));
             if (imei) {
@@ -52,7 +54,7 @@ server.on("connection", socket => {
         console.error({ event: "error", err, remoteAddress: socket.remoteAddress });
     });
     socket.on("close", () => {
-        helpers.imei_manager.delete(socket.remoteAddress)
+        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
         console.info({ event: "close", remoteAddress: socket.remoteAddress });
     });
     socket.setTimeout(10000, () => {
@@ -60,7 +62,7 @@ server.on("connection", socket => {
         socket.destroy();
     });
     socket.on("end", () => {
-        helpers.imei_manager.delete(socket.remoteAddress)
+        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
         console.info({ event: "end", remoteAddress: socket.remoteAddress });
     });
 });
