@@ -36,7 +36,7 @@ server.on("connection", socket => {
                     socket.remoteAddress,
                     socket.remotePort
                 );
-            const parsed = parsed__.map(k => Object.assign({}, k, { imei }));
+            const parsed = parsed__.map(k => Object.assign({}, k, { imei, socket: `${socket.remoteAddress}:socket.remotePort` }));
             if (imei) {
                 helpers.data_middleware(parsed);
             }
@@ -57,7 +57,7 @@ server.on("connection", socket => {
         helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
         console.info({ event: "close", remoteAddress: socket.remoteAddress });
     });
-    socket.setTimeout(10000, () => {
+    socket.setTimeout(1000 * 60 * 10, () => {
         console.log('Socket Timeout', socket.remoteAddress);
         socket.destroy();
     });

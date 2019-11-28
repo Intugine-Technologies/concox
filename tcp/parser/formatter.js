@@ -11,7 +11,7 @@ module.exports = (__case__, __data) => {
       imei: __data.slice(8, 24),
       model: __data.slice(24, 28),
       tzl: __data.slice(28, 32),
-      timezone: parseInt(__data.slice(28, 31), 16) / 100,
+      timezone: helpers.timezone(__data.slice(28, 32)),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -77,6 +77,7 @@ module.exports = (__case__, __data) => {
     };
   }
   if (__case__ === '22') {
+    console.log(__data.slice(60));
     return {
       input: __data,
       tag: 'GPS Location Packet',
@@ -100,7 +101,6 @@ module.exports = (__case__, __data) => {
       input: __data,
       tag: 'Hearbeat Packet',
       case: '23',
-      date: new Date(),
       terminalInfo: __data.slice(8, 10),
       voltage: parseFloat(parseInt(__data.slice(10, 14), 16) / 100),
       battery: helpers.battery_percentage(__data.slice(10, 14)),

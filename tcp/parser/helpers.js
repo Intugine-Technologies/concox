@@ -2,6 +2,18 @@ const crc16 = require('./crc16.js');
 const battery_profile = [[0,3.65],[2,3.66],[5,3.67],[7,3.68],[10,3.69],[12,3.70],[15,3.71],[17,3.72],[20,3.73],[25,3.74],[30,3.75],[35,3.76],[40,3.78],[45,3.79],[48,3.80],[50,3.81],[52,3.82],[54,3.83],[55,3.84],[57,3.85],[59,3.86],[60,3.87],[62,3.88],[64,3.89],[67,3.90],[68,3.9],[70,3.91],[71,3.92],[72,3.93],[73,3.94],[74,3.95],[75,3.96],[77,3.97],[78,3.98],[79,3.99],[80,4.00],[81,4.01],[83,4.02],[84,4.03],[85,4.04],[87,4.05],[88,4.06],[89,4.07],[90,4.08],[91,4.09],[92,4.10],[93,4.11],[94,4.12],[95,4.13],[96,4.14],[97,4.15],[98,4.16],[99,4.17],[100,4.20]];
 
 const addZero = __num => (__num >= 10 ? __num : `0${__num}`);
+addZero_to_timezone = (str) => {
+  const __hr = str.split(":")[0]
+  const __min = str.split(":")[1]
+  const hr = __hr.length === 2 ? __hr : __hr.length === 1 ? "0" + __hr : "00"
+  const min = __min.length === 2 ? __min : __min.length === 1 ? __min + "0" : "00"
+  return hr + ":" + min;
+};
+const timezone = (tzl) => {
+  const gmt_sign = (parseInt(tzl.slice(-1), 16).toString(2).slice(-3, -2) || "0") === "0" ? "+" : "-";
+  const gmt_diff = addZero_to_timezone((parseInt(tzl.slice(0, 3), 16) / 100).toString().replace('.', ':'))
+  return gmt_sign + gmt_diff
+};
 
 const batteryPercentage = (__data) => {
   const volt = parseFloat(parseInt(__data, 16)/100);
@@ -35,13 +47,21 @@ const battery = (voltage) => {
   }
 };
 const date = (__date) => {
+  //   console.log(__date);
+  // const year = __date.slice(0, 2);
+  // const month = __date.slice(2, 4);
+  // const day = __date.slice(4, 6);
+  // const hour = __date.slice(6, 8);
+  // const min = __date.slice(8, 10);
+  // const sec = __date.slice(10, 12);
+  // console.log(year, month, day, hour, min, sec)
   const year = parseInt(__date.slice(0, 2), 16);
   const month = parseInt(__date.slice(2, 4), 16);
   const day = parseInt(__date.slice(4, 6), 16);
   const hour = parseInt(__date.slice(6, 8), 16);
   const min = parseInt(__date.slice(8, 10), 16);
   const sec = parseInt(__date.slice(10, 12), 16);
-  return new Date(`20${year}-${addZero(month)}-${addZero(day)}T${addZero(hour)}:${addZero(min)}:${addZero(sec)}+08:00`);
+  return new Date(`20${year}-${addZero(month)}-${addZero(day)}T${addZero(hour)}:${addZero(min)}:${addZero(sec)}.000+05:30`);
 };
 const loc = (__str) => {
   const tlat = parseInt(__str.slice(0, 8), 16) / 30000;
@@ -134,4 +154,5 @@ module.exports = {
   alarm,
   appendStartEnd,
   battery,
+  timezone
 };
