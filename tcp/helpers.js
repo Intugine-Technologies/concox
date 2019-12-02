@@ -24,8 +24,10 @@ const object__ = {
         return;
     },
     send_data_to_api: (data, client) => {
-        if (client && data[0].gps) {
-            device_data_manager.set({ ...data[0] });
+        if (client) {
+            if (data[0].gps) {
+                device_data_manager.set({ ...data[0] });
+            }
             mqtt_publisher.publish(client, JSON.stringify(data));
         }
         api_handler({
