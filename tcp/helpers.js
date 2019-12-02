@@ -2,6 +2,7 @@ const api_handler = require('./api_handler.js');
 const imei_manager = require('./imei_manager.js');
 const device_data_manager = require('./device_data_manager.js');
 const mqtt_publisher = require("../mqtt_publisher");
+const moment = require('moment');
 const object__ = {
     imei_manager,
     device_data_manager,
@@ -25,11 +26,26 @@ const object__ = {
     },
     send_data_to_api: (data, client) => {
         if (client) {
-            if (data[0].gps) {
-                device_data_manager.set({ ...data[0] });
+            const __data = data.filter(k => k && k.time).map(k => ({
+                ...k,
+                time_diff: moment().diff(moment(k.time))
+            })).filter(k => k.time_diff >= 0);
+            if (__data.length) {
+                if (__data[0].gps) {
+                    device_data_manager.set({ ...__data[0] });
+                }
+                mqtt_publisher.publish(client, JSON.stringify(__data));
             }
-            mqtt_publisher.publish(client, JSON.stringify(data));
         }
+        // if (client && data[0].time && data[0].time) {
+        //     const time_diff = moment().diff(moment(data[0].time));
+        //     if (time_diff >= 0) {
+        //         if (data[0].gps) {
+        //             device_data_manager.set({ ...data[0] });
+        //         }
+        //         mqtt_publisher.publish(client, JSON.stringify(data));
+        //     }
+        // }
         api_handler({
                 url: `/data`,
                 method: 'POST',

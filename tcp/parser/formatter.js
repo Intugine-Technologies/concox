@@ -85,7 +85,7 @@ module.exports = (__case__, __data) => {
       input: __data,
       tag: 'GPS Location Packet',
       case: '22',
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       noSatellites: parseInt(__data.slice(21, 22), 16),
       gps: helpers.loc_at4(__data.slice(22, 38)),
       speed: parseInt(__data.slice(38, 40), 16),
