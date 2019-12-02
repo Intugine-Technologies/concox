@@ -14,7 +14,6 @@ const fetch_devices_previous_data = () => {
                         client: k.client || null,
                         ...data
                     }
-                    console.log('Data updated for', k.id);
                 }
             }, kdx * 1000);
         });

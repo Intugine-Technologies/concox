@@ -15,6 +15,17 @@ const timezone = (tzl) => {
   return gmt_sign + gmt_diff
 };
 
+const terminal_info = (__str) => {
+  const __data = parseInt(__str, 16).toString(2).padStart(8);
+  return {
+    ignition: __data[0] === "0" ? true : false,
+    gps_tracking: __data[1] === "1" ? true : false,
+    charging: __data[5] === "1" ? true : false,
+    acc: __data[6] === "1" ? true : false,
+    defense: __data[7] === "1" ? true : false
+  }
+};
+
 const batteryPercentage = (__data) => {
   const volt = parseFloat(parseInt(__data, 16)/100);
   if(!volt || typeof(volt) !== 'number') return null;
@@ -54,7 +65,7 @@ const date = (__date) => {
   // const hour = __date.slice(6, 8);
   // const min = __date.slice(8, 10);
   // const sec = __date.slice(10, 12);
-  // console.log(year, month, day, hour, min, sec)
+  // console.log(year, month, day, hour, min, sec);
   const year = parseInt(__date.slice(0, 2), 16);
   const month = parseInt(__date.slice(2, 4), 16);
   const day = parseInt(__date.slice(4, 6), 16);
@@ -150,6 +161,7 @@ module.exports = {
   loc_at4: locAT4,
   voltage,
   gsmStrength,
+  terminal_info,
   battery_percentage: batteryPercentage,
   alarm,
   appendStartEnd,
