@@ -72,7 +72,7 @@ const date = (__date) => {
   const hour = parseInt(__date.slice(6, 8), 16);
   const min = parseInt(__date.slice(8, 10), 16);
   const sec = parseInt(__date.slice(10, 12), 16);
-  return new Date(`20${year}-${addZero(month)}-${addZero(day)}T${addZero(hour)}:${addZero(min)}:${addZero(sec)}.000+05:30`);
+  return new Date(`20${year}-${addZero(month)}-${addZero(day)}T${addZero(hour)}:${addZero(min)}:${addZero(sec)}`);
 };
 const loc = (__str) => {
   const tlat = parseInt(__str.slice(0, 8), 16) / 30000;
