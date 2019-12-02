@@ -104,7 +104,7 @@ module.exports = (__case__, __data) => {
       input: __data,
       tag: 'Hearbeat Packet',
       case: '23',
-      terminalInfo: terminal_info(__data.slice(8, 10)),
+      terminalInfo: helpers.terminal_info(__data.slice(8, 10)),
       voltage: parseFloat(parseInt(__data.slice(10, 14), 16) / 100),
       battery: helpers.battery_percentage(__data.slice(10, 14)),
       gsmStrength: helpers.gsmStrength(__data.slice(14, 16)),
