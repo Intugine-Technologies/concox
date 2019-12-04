@@ -3,6 +3,7 @@ const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
 const inspector = require('event-loop-inspector')();
+const command_send = require('./command_send.js');
 const app = require('express')();
 
 app.get('/inspector', (req, res) => {
@@ -40,7 +41,10 @@ server.on("connection", socket => {
             if (imei) {
                 helpers.data_middleware(parsed);
             }
-            if (parsed__[0].output)
+            if(parsed__[0].case === "21"){
+                console.log('Command output', parsed__[0].content)
+            }
+            if (parsed__[0].output) {
                 socket.write(
                     Buffer.from(
                         parsed[0].output
@@ -48,6 +52,14 @@ server.on("connection", socket => {
                         .map(i => parseInt(i, 16))
                     )
                 );
+                socket.write(
+                    Buffer.from(
+                        command_send()
+                        .match(/.{2}/g)
+                        .map(i => parseInt(i, 16))
+                    )
+                );
+            }
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {

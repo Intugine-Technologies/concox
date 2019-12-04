@@ -28,8 +28,10 @@ const object__ = {
         if (client) {
             const __data = data.filter(k => k && k.time).map(k => ({
                 ...k,
-                time_diff: moment().diff(moment(k.time))
-            })).filter(k => k.time_diff >= 0);
+                time: moment().diff(moment(k.time)) > 0 ? k.time : new Date()
+                // time_diff: moment().diff(moment(k.time)) > 0
+            }))/*.filter(k => k.time_diff >= 0);*/
+            
             if (__data.length) {
                 if (__data[0].gps) {
                     device_data_manager.set({ ...__data[0] });
@@ -37,15 +39,6 @@ const object__ = {
                 mqtt_publisher.publish(client, JSON.stringify(__data));
             }
         }
-        // if (client && data[0].time && data[0].time) {
-        //     const time_diff = moment().diff(moment(data[0].time));
-        //     if (time_diff >= 0) {
-        //         if (data[0].gps) {
-        //             device_data_manager.set({ ...data[0] });
-        //         }
-        //         mqtt_publisher.publish(client, JSON.stringify(data));
-        //     }
-        // }
         api_handler({
                 url: `/data`,
                 method: 'POST',

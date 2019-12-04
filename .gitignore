@@ -68,3 +68,5 @@ setup.sh
 
 #user-data file
 user_data.sh
+
+test.js

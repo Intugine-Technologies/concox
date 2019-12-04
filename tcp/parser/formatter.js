@@ -1,7 +1,8 @@
 const moment = require('moment');
 const helpers = require('./helpers');
 
-module.exports = (__case__, __data) => {
+module.exports = (__data) => {
+  const __case__ = __data.slice(6, 8);
   if (__case__ === '01') {
     const prefix = `0501${__data.slice(32, 36)}`;
     return {
@@ -11,6 +12,7 @@ module.exports = (__case__, __data) => {
       imei: __data.slice(8, 24),
       model: __data.slice(24, 28),
       timezone: helpers.timezone(__data.slice(28, 32)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -26,6 +28,7 @@ module.exports = (__case__, __data) => {
       speed: parseInt(__data.slice(38, 40), 16),
       course: __data.slice(40, 44),
       language: parseInt(__data.slice(44, 48), 16) === 2 ? 'English' : 'Chinese',
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -41,6 +44,7 @@ module.exports = (__case__, __data) => {
         parseInt(__data.slice(26, 30), 16),
         parseInt(__data.slice(30, 36), 16),
       ],
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -59,6 +63,7 @@ module.exports = (__case__, __data) => {
         parseInt(__data.slice(50, 54), 16),
         parseInt(__data.slice(54, 60), 16),
       ],
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: null,
     };
   }
@@ -72,15 +77,11 @@ module.exports = (__case__, __data) => {
       voltage: helpers.voltage(__data.slice(10, 12)),
       battery: helpers.battery(helpers.voltage(__data.slice(10, 12))),
       gsmStrength: helpers.gsmStrength(__data.slice(12, 14)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
   if (__case__ === '22') {
-    // console.log('22', __data);
-    // console.log('Acc', __data.slice(60, 62));
-    // console.log('Data upload', __data.slice(62, 64))
-    // console.log('GPS realtime', __data.slice(64, 66));
-    // console.log(__data.length)
     return {
       input: __data,
       tag: 'GPS Location Packet',
@@ -95,6 +96,7 @@ module.exports = (__case__, __data) => {
         parseInt(__data.slice(50, 54), 16),
         parseInt(__data.slice(54, 60), 16),
       ],
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: null,
     };
   }
@@ -109,6 +111,8 @@ module.exports = (__case__, __data) => {
       voltage: parseFloat(parseInt(__data.slice(10, 14), 16) / 100),
       battery: helpers.battery_percentage(__data.slice(10, 14)),
       gsmStrength: helpers.gsmStrength(__data.slice(14, 16)),
+      language: parseInt(__data.slice(16, 20), 16) === 2 ? 'English' : 'Chinese',
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -134,6 +138,33 @@ module.exports = (__case__, __data) => {
       battery: helpers.battery(helpers.voltage(__data.slice(68, 70))),
       gsmStrength: helpers.gsmStrength(__data.slice(70, 72)),
       alarm: helpers.alarm(__data.slice(72, 74)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      language: parseInt(__data.slice(74, 76), 16) === 2 ? 'English' : 'Chinese',
+    };
+  }
+  if (__case__ === '26') {
+    const prefix = `D19600CA00000001${__data.slice(76, 80)}`;
+    return {
+      input: __data,
+      date: helpers.date(__data.slice(8, 20)),
+      case: '26',
+      tag: 'Alarm Packet',
+      noSatellites: parseInt(__data.slice(20, 22), 16),
+      gps: helpers.loc_at4(__data.slice(22, 38)),
+      speed: parseInt(__data.slice(38, 40), 16),
+      course: __data.slice(40, 44),
+      output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
+      cellTower: [parseInt(__data.slice(50, 54), 16),
+        parseInt(__data.slice(54, 56), 16),
+        parseInt(__data.slice(56, 60), 16),
+        parseInt(__data.slice(60, 66), 16),
+      ],
+      terminalInfo: __data.slice(66, 68),
+      voltage: helpers.voltage(__data.slice(68, 70)),
+      battery: helpers.battery(helpers.voltage(__data.slice(68, 70))),
+      gsmStrength: helpers.gsmStrength(__data.slice(70, 72)),
+      alarm: helpers.alarm(__data.slice(72, 74)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       language: parseInt(__data.slice(74, 76), 16) === 2 ? 'English' : 'Chinese',
     };
   }
@@ -149,10 +180,11 @@ module.exports = (__case__, __data) => {
         parseInt(__data.slice(18, 24), 16),
       ],
       phone: __data.slice(24, 66),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
-  if (__case__ === '18') {
+  if (__case__ === '18' || __case__ === "28") {
     return {
       input: __data,
       output: null,
@@ -196,6 +228,9 @@ module.exports = (__case__, __data) => {
         ci: parseInt(__data.slice(90, 94), 16),
         rssi: parseInt(__data.slice(94, 96), 16),
       }],
+      timing_advance: __data.slice(96, 98),
+      language: parseInt(__data.slice(98, 102), 16) === 2 ? 'English' : 'Chinese',
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
     };
   }
   if (__case__ === '19') {
@@ -212,6 +247,7 @@ module.exports = (__case__, __data) => {
       voltage: helpers.voltage(__data.slice(26, 28)),
       battery: helpers.battery(helpers.voltage(__data.slice(26, 28))),
       gsmStrength: helpers.gsmStrength(__data.slice(28, 30)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
@@ -228,18 +264,32 @@ module.exports = (__case__, __data) => {
       course: __data.slice(40, 44),
       phone: __data.slice(44, 86),
       language: parseInt(__data.slice(44, 48), 16) === 2 ? 'English' : 'Chinese',
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
   if (__case__ === '8a') {
     const date = moment.utc().format('YY-MM-DD-HH-mm-ss').toString().replace(/-/g, '');
-    const prefix = `0B8A${date}${__data.slice(8, 12)}`;
+    const prefix = `0b8A${date}${__data.slice(8, 12)}`;
     return {
       input: __data,
       date: new Date(),
       case: '8A',
       tag: 'Time Check Packet info',
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
+    };
+  }
+  if (__data.slice(8, 10) === "21"){
+    return {
+      input: __data,
+      tag: 'Online Command',
+      case: '21',
+      time: new Date(),
+      content_code: parseInt(__data.slice(18, 20)) === 1 ? "ASCII" : "UTF-16-BE",
+      content: helpers.hex_to_ascii(__data.slice(20, -12)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      output: null,
     };
   }
   return {
