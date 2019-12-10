@@ -52,18 +52,20 @@ server.on("connection", socket => {
                         .map(i => parseInt(i, 16))
                     )
                 );
-                socket.write(
-                    Buffer.from(
-                        command_send()
-                        .match(/.{2}/g)
-                        .map(i => parseInt(i, 16))
-                    )
-                );
+                // socket.write(
+                //     Buffer.from(
+                //         command_send()
+                //         .match(/.{2}/g)
+                //         .map(i => parseInt(i, 16))
+                //     )
+                // );
             }
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {
-        console.error({ event: "error", err, remoteAddress: socket.remoteAddress });
+        if(err && err.message !== "read ECONNRESET"){
+            console.error({ event: "error", err, remoteAddress: socket.remoteAddress });
+        }
     });
     socket.on("close", () => {
         helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
