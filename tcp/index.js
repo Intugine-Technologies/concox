@@ -43,7 +43,7 @@ server.on("connection", socket => {
                 })));
             }
             parsed__.filter(k => k.output).forEach((k) => {
-                console.log('Output sent', k.case, k.output);
+                console.log('Output sent', k.case, k.imei, k.output);
                 socket.write(
                     Buffer.from(
                         k.output.match(/.{2}/g).map(i => parseInt(i, 16))
