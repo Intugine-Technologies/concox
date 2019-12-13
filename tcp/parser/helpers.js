@@ -58,13 +58,14 @@ const battery_profile = [
 
 const addZero = __num => (__num >= 10 ? __num : `0${__num}`);
 addZero_to_timezone = (str) => {
-    const __hr = str.split(":")[0]
-    const __min = str.split(":")[1]
-    if (__hr && __min) {
-        const hr = __hr.length === 2 ? __hr : __hr.length === 1 ? "0" + __hr : "00"
-        const min = __min.length === 2 ? __min : __min.length === 1 ? __min + "0" : "00"
-        return hr + ":" + min;
-    } else return null;
+  const __hr = str.split(":")[0]
+  const __min = str.split(":")[1]
+	if(__hr && __min){
+		const hr = __hr.length === 2 ? __hr : __hr.length === 1 ? "0" + __hr : "00"
+	 	 const min = __min.length === 2 ? __min : __min.length === 1 ? __min + "0" : "00"
+ 		 return hr + ":" + min;
+
+	} return null;
 };
 const timezone = (tzl) => {
     const gmt_sign = (parseInt(tzl.slice(-1), 16).toString(2).slice(-3, -2) || "0") === "0" ? "+" : "-";

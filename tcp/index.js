@@ -3,7 +3,6 @@ const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
 const inspector = require('event-loop-inspector')();
-const command_send = require('./command_send.js');
 const app = require('express')();
 
 app.get('/inspector', (req, res) => {
@@ -20,9 +19,8 @@ server.on("connection", socket => {
     socket.on("data", data => {
         const parsed__ = parser(data);
         if (
-            parsed__ &&
+            Array.isArray(parsed__) &&
             parsed__.length > 0 &&
-            parsed__[0] &&
             typeof parsed__[0] === "object" &&
             parsed__[0].case
         ) {
@@ -37,35 +35,24 @@ server.on("connection", socket => {
                     socket.remoteAddress,
                     socket.remotePort
                 );
-            const parsed = parsed__.map(k => Object.assign({}, k, { imei, socket: client }));
             if (imei) {
-                helpers.data_middleware(parsed);
+                helpers.data_middleware(parsed__.map(k => ({
+                    ...k,
+                    imei,
+                    socket: client
+                })));
             }
-            if(parsed__[0].case === "21"){
-                console.log('Command output', parsed__[0].content)
-            }
-            if (parsed__[0].output) {
+            parsed__.filter(k => k.output).forEach((k) => {
+                console.log('Output sent', k.case, k.output);
                 socket.write(
                     Buffer.from(
-                        parsed[0].output
-                        .match(/.{2}/g)
-                        .map(i => parseInt(i, 16))
-                    )
-                );
-                // socket.write(
-                //     Buffer.from(
-                //         command_send()
-                //         .match(/.{2}/g)
-                //         .map(i => parseInt(i, 16))
-                //     )
-                // );
-            }
+                        k.output.match(/.{2}/g).map(i => parseInt(i, 16))
+                    ));
+            });
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {
-        if(err && err.message !== "read ECONNRESET"){
-            console.error({ event: "error", err, remoteAddress: socket.remoteAddress });
-        }
+        console.error({ event: "error", err: err.message, remoteAddress: socket.remoteAddress });
     });
     socket.on("close", () => {
         helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
@@ -89,7 +76,7 @@ server.on("close", err => {
 
 
 server.listen(config.CONCOX_TCP_PORT, () => {
-    console.error({
+    console.log({
         event: "CONCOX_TCP_SERVER STARTED",
         PORT: config.CONCOX_TCP_PORT
     });

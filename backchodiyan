@@ -3,6 +3,6 @@
 
 2. Case 22, we're receiving 2025 date very frequently
 
-3. Case 22, in documentation it is written to convert the date string to decimal, but not working.
+3. Case 22, in documentation it is written to convert the date string to decimal, but not working. - English mistake in Protocol Docs
 
-4. How can we filter out invalid packets, by starting 7878/7979 and end 0d0a, if multiple packets are coming clubbed together.
+4. How can we filter out invalid packets, by starting 7878/7979 and end 0d0a, if multiple packets are coming clubbed together. - Shouldn't happen
