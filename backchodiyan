@@ -1,8 +1,0 @@
-1. Case 22, should have a packet length of 43 * 2, but we're receiving otherwise
-	e.g. 78782222190109022901c30166d5d00855d6500014f501945679e300a691000e00027a0b5d0d0a
-
-2. Case 22, we're receiving 2025 date very frequently
-
-3. Case 22, in documentation it is written to convert the date string to decimal, but not working. - English mistake in Protocol Docs
-
-4. How can we filter out invalid packets, by starting 7878/7979 and end 0d0a, if multiple packets are coming clubbed together. - Shouldn't happen

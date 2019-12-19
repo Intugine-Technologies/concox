@@ -52,21 +52,21 @@ server.on("connection", socket => {
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {
-        console.error({ event: "error", err: err.message, remoteAddress: socket.remoteAddress });
+        console.error({ event: "error", err: err.message, client });
         socket.end();
     });
     socket.on("close", () => {
-        console.log({ event: "close", remoteAddress: socket.remoteAddress });
-        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort);
+        console.log({ event: "close", client });
+        helpers.imei_manager.delete(client);
     });
     socket.setTimeout(1000 * 60 * 30, () => {
-        console.log('Socket Timeout', socket.remoteAddress);
-        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort);
+        console.log('Socket Timeout', client);
+        helpers.imei_manager.delete(client);
         socket.end();
     });
-    socket.on("end", () => {
-        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
-        console.log({ event: "end", remoteAddress: socket.remoteAddress });
+    socket.on("end", (hadError) => {
+        helpers.imei_manager.delete(client);
+        console.log({ event: "end", client, hadError });
     });
 });
 server.on("error", err => {

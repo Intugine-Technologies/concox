@@ -11,8 +11,7 @@ module.exports = {
 		const client = `${remote_address}:${remote_port}`;
 		return terminals_connected[client] || null;
 	},
-	delete: (remote_address, remote_port) => {
-		const client = `${remote_address}:${remote_port}`;
+	delete: (client) => {
 		delete terminals_connected[client];
 	}
 };
