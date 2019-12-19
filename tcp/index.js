@@ -16,6 +16,7 @@ app.listen(9999, () => {
 server.on("connection", socket => {
     socket.setEncoding("hex");
     const client = `${socket.remoteAddress}:${socket.remotePort}`;
+    socket.setKeepAlive(true, 50000);
     socket.on("data", data => {
         const parsed__ = parser(data);
         if (
@@ -43,7 +44,6 @@ server.on("connection", socket => {
                 })));
             }
             parsed__.filter(k => k.output).forEach((k) => {
-                console.log('Output sent', k.case, k.imei, k.output);
                 socket.write(
                     Buffer.from(
                         k.output.match(/.{2}/g).map(i => parseInt(i, 16))
@@ -53,18 +53,20 @@ server.on("connection", socket => {
     });
     socket.on("error", err => {
         console.error({ event: "error", err: err.message, remoteAddress: socket.remoteAddress });
+        socket.end();
     });
     socket.on("close", () => {
-        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
-        console.info({ event: "close", remoteAddress: socket.remoteAddress });
+        console.log({ event: "close", remoteAddress: socket.remoteAddress });
+        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort);
     });
     socket.setTimeout(1000 * 60 * 30, () => {
         console.log('Socket Timeout', socket.remoteAddress);
-        socket.destroy();
+        helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort);
+        socket.end();
     });
     socket.on("end", () => {
         helpers.imei_manager.delete(socket.remoteAddress, socket.remotePort)
-        console.info({ event: "end", remoteAddress: socket.remoteAddress });
+        console.log({ event: "end", remoteAddress: socket.remoteAddress });
     });
 });
 server.on("error", err => {

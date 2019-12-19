@@ -292,6 +292,18 @@ module.exports = (__data) => {
       output: null,
     };
   }
+  if(__data.indexOf('7979') > -1){
+    return {
+      input: __data,
+      tag: 'Online Command',
+      case: '21',
+      time: new Date(),
+      content_code: parseInt(__data.slice(18, 20)) === 1 ? "ASCII" : "UTF-16-BE",
+      content: helpers.hex_to_ascii(__data.slice(20, -12)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      output: null,
+    };
+  }
   return {
     input: __data,
     output: null,
