@@ -29,12 +29,11 @@ const object__ = {
             const __data = data.filter(k => k && k.time).map(k => ({
                 ...k,
                 time: moment().diff(moment(k.time)) > 0 ? k.time : new Date()
-                // time_diff: moment().diff(moment(k.time)) > 0
-            }))/*.filter(k => k.time_diff >= 0);*/
-            
+            }));
+
             if (__data.length) {
                 if (__data[0].gps) {
-                    device_data_manager.set({ ...__data[0] });
+                    device_data_manager.set(__data[0]);
                 }
                 mqtt_publisher.publish(client, JSON.stringify(__data));
             }
@@ -66,6 +65,7 @@ object__.data_middleware = data => {
                         ...k,
                         device: r.id,
                         client: r.client,
+                        speed: k.speed || r.speed || null,
                         gps: k.gps ||
                             (["13", "23"].indexOf(k.case) > -1 ? r.gps : null),
                         battery: k.battery || r.battery
