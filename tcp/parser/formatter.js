@@ -73,6 +73,7 @@ module.exports = (__data) => {
       input: __data,
       tag: 'Status Info',
       case: '13',
+      time: new Date(),
       terminalInfo: __data.slice(8, 10),
       voltage: helpers.voltage(__data.slice(10, 12)),
       battery: helpers.battery(helpers.voltage(__data.slice(10, 12))),

@@ -60,6 +60,7 @@ object__.data_middleware = data => {
             .get(data[0].imei)
             .then(r => {
                 client = r.client;
+                console.log('data middleware', data, client);
                 object__.send_data_to_api(
                     data.map(k => ({
                         ...k,

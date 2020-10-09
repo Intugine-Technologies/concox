@@ -10,8 +10,9 @@ redis_client.on("error", (err) => {
 });
 
 const update_redis = (imei, data) => {
+    console.log('update redis', imei, data);
     redis_client.get(imei, (err, result) => {
-        if (err) console.error(err);
+        if (err) console.error('Error', err);
         else {
             redis_client.set(imei, JSON.stringify({ ...JSON.parse(result), ...data }));
         }
@@ -31,6 +32,7 @@ const obj = {
                     redis_client.get(imei, (err, result) => {
                         if (err) reject(err);
                         else {
+                            console.log('Data manager get', result);
                             resolve({
                                 ...JSON.parse(result),
                                 id: r.data && r.data.id ? r.data.id : "NA",
