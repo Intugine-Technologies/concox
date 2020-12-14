@@ -22,7 +22,7 @@ module.exports = (__data) => {
       input: __data,
       tag: 'GPS Info',
       case: '10',
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       noSatellites: parseInt(__data.slice(21, 22), 16),
       gps: helpers.loc(__data.slice(22, 38)),
       speed: parseInt(__data.slice(38, 40), 16),
@@ -38,7 +38,7 @@ module.exports = (__data) => {
       input: __data,
       tag: 'LBS Info',
       case: '11',
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       cellTower: [parseInt(__data.slice(20, 24), 16),
         parseInt(__data.slice(24, 26), 16),
         parseInt(__data.slice(26, 30), 16),
@@ -53,7 +53,7 @@ module.exports = (__data) => {
       input: __data,
       tag: 'GPS Location Packet',
       case: '12',
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       noSatellites: parseInt(__data.slice(21, 22), 16),
       gps: helpers.loc_at4(__data.slice(22, 38)),
       speed: parseInt(__data.slice(38, 40), 16),
@@ -121,7 +121,7 @@ module.exports = (__data) => {
     const prefix = `D19600CA00000001${__data.slice(76, 80)}`;
     return {
       input: __data,
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       case: '16',
       tag: 'Combined information packet of GPS, LBS and Status',
       noSatellites: parseInt(__data.slice(20, 22), 16),
@@ -147,7 +147,7 @@ module.exports = (__data) => {
     const prefix = `D19600CA00000001${__data.slice(76, 80)}`;
     return {
       input: __data,
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       case: '26',
       tag: 'Alarm Packet',
       noSatellites: parseInt(__data.slice(20, 22), 16),
@@ -191,7 +191,7 @@ module.exports = (__data) => {
       output: null,
       case: '18',
       tag: 'LBS Extension Info',
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       cellTower: [
         parseInt(__data.slice(20, 24), 16),
         parseInt(__data.slice(24, 26), 16),
@@ -256,7 +256,7 @@ module.exports = (__data) => {
     const prefix = `000B9700CA00000001${__data.slice(48, 52)}`;
     return {
       input: __data,
-      date: helpers.date(__data.slice(8, 20)),
+      time: helpers.date(__data.slice(8, 20)),
       case: '1A',
       tag: 'GPS, phone number checking location info',
       noSatellites: parseInt(__data.slice(20, 22), 16),
@@ -274,7 +274,7 @@ module.exports = (__data) => {
     const prefix = `0b8A${date}${__data.slice(8, 12)}`;
     return {
       input: __data,
-      date: new Date(),
+      time: new Date(),
       case: '8A',
       tag: 'Time Check Packet info',
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
