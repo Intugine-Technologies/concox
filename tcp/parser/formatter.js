@@ -270,7 +270,8 @@ module.exports = (__data) => {
     };
   }
   if (__case__ === '8a') {
-    const date = moment.utc().format('YY-MM-DD-HH-mm-ss').toString().replace(/-/g, '');
+    // const date = moment.utc().format('YY-MM-DD-HH-mm-ss').toString().replace(/-/g, '');
+    const date = moment.utc().format('YY-MM-DD-HH-mm-ss').split('-').map(k => parseInt(k).toString(16).padStart(2, '0')).join('');
     const prefix = `0b8A${date}${__data.slice(8, 12)}`;
     return {
       input: __data,
