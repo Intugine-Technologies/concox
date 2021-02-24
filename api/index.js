@@ -1,14 +1,23 @@
 const app = require('express')();
 const mongo = require('@intugine-technologies/mongodb');
 const body_parser = require('body-parser');
+const moment = require('moment');
 app.use(body_parser.json());
 let db = null;
 const config = require('../config');
 
 app.get('/concox/last_location/:imei', (req, res) => {
-    db.read('status', { imei: req.params.imei, gps: { $exists: true } })
+    // db.read('status', { imei: req.params.imei, gps: { $exists: true } })
+    db.read('status_v2', {
+        imei: req.params.imei
+    }, {
+        events: {
+            $slice: -1
+        }
+    })
         .then((r) => {
-            res.json(r[0]);
+            if(r.length && r[0].events.length) res.json(r[0].events[0]);
+            else res.json(null);
         })
         .catch((e) => {
             console.error({ method: 'GET', event: '/concox/last_location/:imei', err: e });
@@ -17,9 +26,16 @@ app.get('/concox/last_location/:imei', (req, res) => {
 });
 
 app.get('/concox/last_battery/:imei', (req, res) => {
-    db.read('status', { imei: req.params.imei, battery: { $exists: true } })
+     db.read('status_v2', {
+        imei: req.params.imei
+    }, {
+        events: {
+            $slice: -1
+        }
+    })
         .then((r) => {
-            res.json(r[0]);
+            if(r.length && r[0].events.length) res.json(r[0].events[0]);
+            else res.json(null);
         })
         .catch((e) => {
             console.error({ method: 'GET', event: '/concox/last_battery/:imei', err: e });
@@ -28,7 +44,21 @@ app.get('/concox/last_battery/:imei', (req, res) => {
 });
 
 app.post('/concox/data', (req, res) => {
-    db.create('status', req.body.data)
+    // Promise.all([
+        // db.create('status', req.body.data),
+    // ])
+        db.update('status_v2', {
+            imei: req.body.data[0].imei,
+            hour_window: moment().format('YYYY-MM-DDTHH')
+        }, {
+            $push: {
+                events: {
+                    $each: req.body.data.map(k => ({...k, createdAt: new Date()}))
+                }
+            }
+        }, {
+            upsert: true
+        })
         .then((r) => {
             res.sendStatus(200);
         })
