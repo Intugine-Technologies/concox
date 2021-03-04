@@ -5,6 +5,8 @@ const helpers = require("./helpers.js");
 const inspector = require('event-loop-inspector')();
 const app = require('express')();
 
+console.log('test')
+
 app.get('/inspector', (req, res) => {
     res.json(inspector.dump());
 });
