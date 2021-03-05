@@ -3,9 +3,9 @@ const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
 const inspector = require('event-loop-inspector')();
-const app = require('express')();
+const ota_commands = require('./ota_commands_manager.js');
 
-console.log('test')
+const app = require('express')();
 
 app.get('/inspector', (req, res) => {
     res.json(inspector.dump());
@@ -14,6 +14,21 @@ app.get('/inspector', (req, res) => {
 app.listen(9999, () => {
     console.log('Event loop inspector listening');
 });
+
+send_ota_command = (imei, socket) => {
+    ota_commands.get(imei)
+        .then((r) => {
+            if(r && r.message_to_send){
+                socket.write(
+                    Buffer.from(
+                        helpers.ascii_to_hex(r.message_to_send).match(/.{2}/g).map(i => parseInt(i, 16))
+                    ));
+            }
+        })
+        .catch((e) => {
+            console.error('Error in sending_ota_commands', e);
+        });
+};
 
 server.on("connection", socket => {
     socket.setEncoding("hex");
@@ -51,6 +66,7 @@ server.on("connection", socket => {
                         k.output.match(/.{2}/g).map(i => parseInt(i, 16))
                     ));
             });
+            send_ota_command(imei, socket);
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {
