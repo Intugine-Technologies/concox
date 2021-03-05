@@ -214,12 +214,17 @@ const hex_to_ascii = (__str) => {
     return str;
 };
 
+const ascii_to_hex = (__str) => {
+    return __str.split('').map(k => k.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+};
+
 module.exports = {
     crc16,
     date,
     loc,
     loc_at4: locAT4,
     hex_to_ascii,
+    ascii_to_hex,
     voltage,
     gsmStrength,
     terminal_info,
