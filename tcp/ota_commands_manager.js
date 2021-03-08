@@ -19,7 +19,7 @@ module.exports = {
 			});
 		});
 	},
-	add: (imei, command) => {
+	add: (imei, data) => {
 		return new Promise((resolve, reject) => {
 			redis_client.sadd(
 				`ota_commands_${imei}`,

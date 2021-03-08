@@ -124,6 +124,28 @@ app.get('/concox/', (req, res) => {
         });
 });
 
+app.post('/concox/ota_command', (req, res) => {
+    db.update('ota_commands', {
+            imei: req.body.data[0].imei,
+            hour_window: moment().format('YYYY-MM-DDTHH')
+        }, {
+            $push: {
+                events: {
+                    $each: req.body.data.map(k => ({...k, createdAt: new Date()}))
+                }
+            }
+        }, {
+            upsert: true
+        })
+        .then((r) => {
+            res.sendStatus(200);
+        })
+        .catch((e) => {
+            console.error({ method: 'POST', event: '/concox/data', err: e });
+            res.sendStatus(500);
+        });
+});
+
 mongo(config.DB_URI, config.DB_NAME)
     .then((DB) => {
         db = DB;
