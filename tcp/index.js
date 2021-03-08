@@ -27,12 +27,12 @@ client.on("connect", function () {
                     k.message_to_send
                 );
             } else {
-                ota_commands.add(k.imei, {
-                    message_to_send: k.message_to_send,
-                    time: Date.now(),
-                }).then(() => {}).catch((e) => {
-                    console.error(e);
-                })
+                // ota_commands.add(k.imei, {
+                //     message_to_send: k.message_to_send,
+                //     time: Date.now(),
+                // }).then(() => {}).catch((e) => {
+                //     console.error(e);
+                // })
             }
         });
     });
