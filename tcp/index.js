@@ -19,7 +19,7 @@ client.on("connect", function () {
         console.log(topic, message.toString());
         const data = JSON.parse(message);
         data.filter((k) => k.imei && k.message_to_send).forEach((k) => {
-            if (sockets[k.imei]) {
+            if (sockets[k.imei] && sockets[k.imei].socket.readyState === "open") {
                 send_ota_command(
                     k.imei,
                     sockets[k.imei].socket,
@@ -149,7 +149,7 @@ server.on("connection", (socket) => {
                         )
                     );
                 });
-            if(imei) check_past_ota_commands(imei)
+            if(imei && parsed__[0].case === "01") check_past_ota_commands(imei)
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", (err) => {
