@@ -2,6 +2,7 @@ const server = require("net").createServer();
 const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
+const helpers_ = require("./parser/helpers.js");
 const inspector = require('event-loop-inspector')();
 const ota_commands = require('./ota_commands_manager.js');
 
@@ -15,13 +16,25 @@ app.listen(9999, () => {
     console.log('Event loop inspector listening');
 });
 
-send_ota_command = (imei, socket) => {
+send_ota_command = (imei, socket, serial_no) => {
+    console.log("ota", imei, serial_no);
     ota_commands.get(imei)
         .then((r) => {
             if(r && r.message_to_send){
+                console.log("ota", imei, r.message_to_send);
+                const command = helpers_.ascii_to_hex(r.message_to_send);
+                const server_flag_bit = "00000000"
+                const length_of_command = (command.match(/.{2}/g).length + 4).toString(16).padStart(2, "0");
+                const language = "0002"
+                const serial = (serial_no + 1).toString(16).padStart(4, "0");
+                const info_content = length_of_command + server_flag_bit + command + language;
+                const data_length = (1 + info_content.match(/.{2}/g).length + 2 + 2).toString(16).padStart(2, "0");
+                const data = data_length + "80" + info_content + serial;
+                const message = helpers_.appendStartEnd(`${data}${helpers_.crc16(data)}`);
+                console.log("ota", imei, message);
                 socket.write(
                     Buffer.from(
-                        helpers.ascii_to_hex(r.message_to_send).match(/.{2}/g).map(i => parseInt(i, 16))
+                        message.match(/.{2}/g).map(i => parseInt(i, 16))
                     ));
             }
         })
@@ -66,7 +79,7 @@ server.on("connection", socket => {
                         k.output.match(/.{2}/g).map(i => parseInt(i, 16))
                     ));
             });
-            send_ota_command(imei, socket);
+            send_ota_command(imei, socket, parsed__[0].info_serial_no);
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", err => {

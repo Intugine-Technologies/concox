@@ -3,6 +3,18 @@ const helpers = require('./helpers');
 
 module.exports = (__data) => {
   const __case__ = __data.slice(6, 8);
+  if(__data.indexOf('7979') > -1){
+    return {
+      input: __data,
+      tag: 'Online Command',
+      case: '21',
+      time: new Date(),
+      content_code: parseInt(__data.slice(18, 20)) === 1 ? "ASCII" : "UTF-16-BE",
+      content: helpers.hex_to_ascii(__data.slice(20, -12)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      output: null,
+    };
+  }
   if (__case__ === '01') {
     const prefix = `0501${__data.slice(32, 36)}`;
     return {
@@ -283,18 +295,6 @@ module.exports = (__data) => {
     };
   }
   if (__data.slice(8, 10) === "21"){
-    return {
-      input: __data,
-      tag: 'Online Command',
-      case: '21',
-      time: new Date(),
-      content_code: parseInt(__data.slice(18, 20)) === 1 ? "ASCII" : "UTF-16-BE",
-      content: helpers.hex_to_ascii(__data.slice(20, -12)),
-      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
-      output: null,
-    };
-  }
-  if(__data.indexOf('7979') > -1){
     return {
       input: __data,
       tag: 'Online Command',
