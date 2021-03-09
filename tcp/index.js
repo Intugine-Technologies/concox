@@ -29,7 +29,6 @@ client.on("connect", function () {
             } else {
                 ota_commands.add(k.imei, {
                     message_to_send: k.message_to_send,
-                    time: Date.now(),
                 }).then(() => {}).catch((e) => {
                     console.error(e);
                 })
