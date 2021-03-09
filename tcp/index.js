@@ -10,40 +10,6 @@ const Promise = require("bluebird");
 const sockets = {};
 const app = require("express")();
 
-// const client = require("mqtt").connect(config.BROKER_URL);
-// client.on("connect", function () {
-//     console.log("Connected to Broker");
-//     client.subscribe("concox/ota_command/#", (err) => {
-//         if (err) console.log(err);
-//     });
-//     client.on("message", function (topic, message) {
-//         console.log(topic, message.toString());
-//         const data = JSON.parse(message);
-//         data.filter((k) => k.imei && k.message_to_send).forEach((k) => {
-//             if (
-//                 sockets[k.imei] &&
-//                 sockets[k.imei].socket.readyState === "open"
-//             ) {
-//                 send_ota_command(
-//                     k.imei,
-//                     sockets[k.imei].socket,
-//                     sockets[k.imei].info_serial_no,
-//                     k.message_to_send
-//                 );
-//             } else {
-//                 ota_commands
-//                     .add(k.imei, {
-//                         message_to_send: k.message_to_send,
-//                     })
-//                     .then(() => {})
-//                     .catch((e) => {
-//                         console.error(e);
-//                     });
-//             }
-//         });
-//     });
-// });
-
 const fetch_send_ota_commands = () => {
     ota_commands
         .members()
@@ -84,8 +50,8 @@ app.listen(9999, () => {
 });
 
 const send_ota_command = (imei, socket, serial_no, __message) => {
-    console.log("ota", imei, serial_no, __message);
-    console.log("ota", imei, __message);
+    // console.log("ota", imei, serial_no, __message);
+    // console.log("ota", imei, __message);
     const command = helpers_.ascii_to_hex(__message);
     const server_flag_bit = "00000000";
     const length_of_command = (command.match(/.{2}/g).length + 4)
@@ -100,7 +66,7 @@ const send_ota_command = (imei, socket, serial_no, __message) => {
         .padStart(2, "0");
     const data = data_length + "80" + info_content + serial;
     const message = helpers_.appendStartEnd(`${data}${helpers_.crc16(data)}`);
-    console.log("ota", imei, message);
+    // console.log("ota", imei, message);
     socket.write(
         Buffer.from(message.match(/.{2}/g).map((i) => parseInt(i, 16)))
     );
@@ -112,27 +78,6 @@ const send_ota_command = (imei, socket, serial_no, __message) => {
         },
     ]);
 };
-
-// const check_past_ota_commands = (imei) => {
-//     console.log("Checking past ota", imei);
-//     if (sockets[imei] && sockets[imei].socket.readyState === "open") {
-//         ota_commands
-//             .get(imei)
-//             .then((r) => {
-//                 if (r && r.message_to_send) {
-//                     send_ota_command(
-//                         imei,
-//                         sockets[imei].socket,
-//                         sockets[imei].info_serial_no,
-//                         r.message_to_send
-//                     );
-//                 }
-//             })
-//             .catch((e) => {
-//                 console.error(e);
-//             });
-//     }
-// };
 
 server.on("connection", (socket) => {
     socket.setEncoding("hex");
@@ -190,8 +135,6 @@ server.on("connection", (socket) => {
                         )
                     );
                 });
-            // if (imei && parsed__[0].case === "01")
-            //     check_past_ota_commands(imei);
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", (err) => {
