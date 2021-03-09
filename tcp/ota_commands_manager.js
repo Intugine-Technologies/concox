@@ -33,4 +33,20 @@ module.exports = {
 			);
 		});
 	},
+	members: () => {
+		return new Promise((resolve, reject) => {
+			redis_client.smembers("ota_commands", (err, data) => {
+				if(err) {console.error(err); resolve([])}
+				else resolve(data.map(k => JSON.parse(k)))
+			});
+		});
+	},
+	remove: (data) => {
+		return new Promise((resolve, reject) => {
+			redis_client.srem("ota_commands", JSON.stringify(data), (err, res) => {
+				if(err) {console.error(err); resolve(false)}
+				else resolve(true);
+			});
+		});
+	}
 };

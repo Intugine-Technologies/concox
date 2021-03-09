@@ -3,39 +3,77 @@ const parser = require("./parser");
 const config = require("../config");
 const helpers = require("./helpers.js");
 const helpers_ = require("./parser/helpers.js");
-const ota_save_to_db = require('./save_ota_command_to_db.js');
+const ota_save_to_db = require("./save_ota_command_to_db.js");
 const inspector = require("event-loop-inspector")();
 const ota_commands = require("./ota_commands_manager.js");
+const Promise = require("bluebird");
 const sockets = {};
 const app = require("express")();
 
-const client = require("mqtt").connect(config.BROKER_URL);
-client.on("connect", function () {
-    console.log("Connected to Broker");
-    client.subscribe("concox/ota_command/#", (err) => {
-        if (err) console.log(err);
-    });
-    client.on("message", function (topic, message) {
-        console.log(topic, message.toString());
-        const data = JSON.parse(message);
-        data.filter((k) => k.imei && k.message_to_send).forEach((k) => {
-            if (sockets[k.imei] && sockets[k.imei].socket.readyState === "open") {
-                send_ota_command(
-                    k.imei,
-                    sockets[k.imei].socket,
-                    sockets[k.imei].info_serial_no,
-                    k.message_to_send
-                );
-            } else {
-                ota_commands.add(k.imei, {
-                    message_to_send: k.message_to_send,
-                }).then(() => {}).catch((e) => {
-                    console.error(e);
-                })
-            }
+// const client = require("mqtt").connect(config.BROKER_URL);
+// client.on("connect", function () {
+//     console.log("Connected to Broker");
+//     client.subscribe("concox/ota_command/#", (err) => {
+//         if (err) console.log(err);
+//     });
+//     client.on("message", function (topic, message) {
+//         console.log(topic, message.toString());
+//         const data = JSON.parse(message);
+//         data.filter((k) => k.imei && k.message_to_send).forEach((k) => {
+//             if (
+//                 sockets[k.imei] &&
+//                 sockets[k.imei].socket.readyState === "open"
+//             ) {
+//                 send_ota_command(
+//                     k.imei,
+//                     sockets[k.imei].socket,
+//                     sockets[k.imei].info_serial_no,
+//                     k.message_to_send
+//                 );
+//             } else {
+//                 ota_commands
+//                     .add(k.imei, {
+//                         message_to_send: k.message_to_send,
+//                     })
+//                     .then(() => {})
+//                     .catch((e) => {
+//                         console.error(e);
+//                     });
+//             }
+//         });
+//     });
+// });
+
+const fetch_send_ota_commands = () => {
+    ota_commands
+        .members()
+        .then((r) => {
+            return Promise.map(
+                r.filter(
+                    (k) =>
+                        k.imei &&
+                        k.message_to_send &&
+                        sockets[k.imei] &&
+                        sockets[k.imei].socket.readyState === "open"
+                ),
+                (k) => {
+                    send_ota_command(k.imei, sockets[k.imei].socket, sockets[k.imei].info_serial_no, k.message_to_send);
+                    return ota_commands.remove(k);
+                },
+                {
+                    concurrency: 5,
+                }
+            );
+        })
+        .then((r) => {})
+        .catch((e) => {
+            console.error(e);
         });
-    });
-});
+};
+
+setInterval(() => {
+    fetch_send_ota_commands();
+}, 60000);
 
 app.get("/inspector", (req, res) => {
     res.json(inspector.dump());
@@ -66,33 +104,35 @@ const send_ota_command = (imei, socket, serial_no, __message) => {
     socket.write(
         Buffer.from(message.match(/.{2}/g).map((i) => parseInt(i, 16)))
     );
-    ota_save_to_db([{
-        imei,
-        time: Date.now(),
-        content: __message
-    }]);
+    ota_save_to_db([
+        {
+            imei,
+            time: Date.now(),
+            content: __message,
+        },
+    ]);
 };
 
-const check_past_ota_commands = (imei) => {
-    console.log('Checking past ota', imei);
-    if (sockets[imei] && sockets[imei].socket.readyState === "open") {
-        ota_commands
-            .get(imei)
-            .then((r) => {
-                if (r && r.message_to_send) {
-                    send_ota_command(
-                        imei,
-                        sockets[imei].socket,
-                        sockets[imei].info_serial_no,
-                        r.message_to_send
-                    );
-                }
-            })
-            .catch((e) => {
-                console.error(e);
-            });
-    }
-};
+// const check_past_ota_commands = (imei) => {
+//     console.log("Checking past ota", imei);
+//     if (sockets[imei] && sockets[imei].socket.readyState === "open") {
+//         ota_commands
+//             .get(imei)
+//             .then((r) => {
+//                 if (r && r.message_to_send) {
+//                     send_ota_command(
+//                         imei,
+//                         sockets[imei].socket,
+//                         sockets[imei].info_serial_no,
+//                         r.message_to_send
+//                     );
+//                 }
+//             })
+//             .catch((e) => {
+//                 console.error(e);
+//             });
+//     }
+// };
 
 server.on("connection", (socket) => {
     socket.setEncoding("hex");
@@ -130,13 +170,15 @@ server.on("connection", (socket) => {
                         socket: client,
                     }))
                 );
-                if(parsed__[0].tag === "Online Command"){
-                    ota_save_to_db(parsed__.map((k) => ({
-                        ...k,
-                        imei,
-                        time: Date.now(),
-                        socket: client,
-                    })));
+                if (parsed__[0].tag === "Online Command") {
+                    ota_save_to_db(
+                        parsed__.map((k) => ({
+                            ...k,
+                            imei,
+                            time: Date.now(),
+                            socket: client,
+                        }))
+                    );
                 }
             }
             parsed__
@@ -148,7 +190,8 @@ server.on("connection", (socket) => {
                         )
                     );
                 });
-            if(imei && parsed__[0].case === "01") check_past_ota_commands(imei)
+            // if (imei && parsed__[0].case === "01")
+            //     check_past_ota_commands(imei);
         } else helpers.send_invalid_data_to_api(data);
     });
     socket.on("error", (err) => {
