@@ -88,7 +88,7 @@ module.exports = (__data) => {
   }
   if (__case__ === '13') {
     const prefix = `0513${__data.slice(18, 22)}`;
-    return {
+    const temp = {
       input: __data,
       tag: 'Status Info',
       case: '13',
@@ -97,9 +97,17 @@ module.exports = (__data) => {
       voltage: helpers.voltage(__data.slice(10, 12)),
       battery: helpers.battery(helpers.voltage(__data.slice(10, 12))),
       gsmStrength: helpers.gsmStrength(__data.slice(12, 14)),
+      
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
+
+    //wanway temp devices
+    if(__data.length === 32){
+      temp.external_temp = helpers.temperature(__data.slice(14,20));
+    }
+
+    return temp;
   }
   if (__case__ === '22') {
     return {
@@ -204,7 +212,7 @@ module.exports = (__data) => {
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
   }
-  if (__case__ === '18' || __case__ === "28") {
+  if (__case__ === '18' || __case__ === "28" || __case__ === "24") {
     return {
       input: __data,
       output: null,

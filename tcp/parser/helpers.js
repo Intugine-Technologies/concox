@@ -138,6 +138,9 @@ const locAT4 = __str => [
     parseFloat(parseInt(__str.slice(8, 16), 16) / (1800000)),
 ];
 const voltage = (__str) => {
+    if(__str[0] === 'F'){
+        return 'External Power'
+    };
     switch (parseInt(__str, 16)) {
         case 0:
             return 'No power(shutdown)';
@@ -199,6 +202,28 @@ const alarm = (__str) => {
             return 'power on';
         case 13:
             return 'GPS first location';
+        case 14:
+            return 'External Power Low Battery';
+        case 15:
+            return 'External Power Low Battery Protection';
+        case 17:
+            return 'Power Off';
+        case 19:
+            return 'Demolition Alarm';
+        case 20:
+            return 'Door Alarm';
+        case 21:
+            return 'Low Power Shutdown';
+        case 41:
+            return 'Harsh Breaking';
+        case 44:
+            return 'Collision';
+        case 45:
+            return 'Flip';
+        case 47:
+            return 'Rapid Acceleration';
+        case 76:
+            return 'Sharp Turn';
         default:
             return null;
     }
@@ -218,6 +243,10 @@ const ascii_to_hex = (__str) => {
     return __str.split('').map(k => k.charCodeAt(0).toString(16).padStart(2, '0')).join('');
 };
 
+const temperature = (__str) => {
+    return parseInt(__str.slice(2,6), 16)/10;
+}
+
 module.exports = {
     crc16,
     date,
@@ -232,5 +261,6 @@ module.exports = {
     alarm,
     appendStartEnd,
     battery,
-    timezone
+    timezone,
+    temperature,
 };
