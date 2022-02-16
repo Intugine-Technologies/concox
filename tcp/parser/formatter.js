@@ -2,7 +2,8 @@ const moment = require('moment');
 const helpers = require('./helpers');
 
 module.exports = (__data) => {
-  const __case__ = __data.slice(6, 8);
+  const __case__ = __data.slice(0, 4) === "7878" ? __data.slice(6, 8) : __data.slice(8, 10);
+  console.log(__case__, __data)
   if (__case__ === '01') {
     const prefix = `0501${__data.slice(32, 36)}`;
     return {
@@ -298,6 +299,31 @@ module.exports = (__data) => {
       time: new Date(),
       content_code: parseInt(__data.slice(18, 20)) === 1 ? "ASCII" : "UTF-16-BE",
       content: helpers.hex_to_ascii(__data.slice(20, -12)),
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      output: null,
+    };
+  }
+  if (__case__ === "70") {
+    return {
+      input: __data,
+      tag: 'GPS Position Packet',
+      case: '70',
+      ...helpers.modulecontent4g(__data.slice(10, -6)),
+      // info: [{
+      //   module: //2 bit,
+      //   length: // 2 bit,
+      //   content: // m bit
+      // }] // __data.slice(8, -12)
+      // time: helpers.date(__data.slice(8, 20)),
+      // noSatellites: parseInt(__data.slice(21, 22), 16),
+      // gps: helpers.loc_at4(__data.slice(22, 38)),
+      // speed: parseInt(__data.slice(38, 40), 16),
+      // course: __data.slice(40, 44),
+      // cellTower: [parseInt(__data.slice(44, 48), 16),
+      //   parseInt(__data.slice(48, 50), 16),
+      //   parseInt(__data.slice(50, 54), 16),
+      //   parseInt(__data.slice(54, 60), 16),
+      // ],
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: null,
     };
