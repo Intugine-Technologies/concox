@@ -67,3 +67,5 @@ config.json
 user_data.sh
 
 test.js
+
+dump.rdb

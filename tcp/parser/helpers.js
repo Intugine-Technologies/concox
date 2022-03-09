@@ -1,4 +1,5 @@
 const crc16 = require('./crc16.js');
+const module_content_4g = require('./module_content_4g.js');
 const battery_profile = [
     [0, 3.65],
     [2, 3.66],
@@ -247,6 +248,25 @@ const temperature = (__str) => {
     return parseInt(__str.slice(2,6), 16)/10;
 }
 
+const modulecontent4g = (__str = "") => {
+    // console.log("Str", __str)
+    let output = {};
+    let content = __str;
+    do{
+        const _module = content.slice(0, 4);
+        const _module_content_length = parseInt(content.slice(4, 8), 16);
+        // console.log("Module", _module, _module_content_length, content.slice(8, 8 + _module_content_length * 2));
+        const result = module_content_4g(_module, content.slice(8, 8 + _module_content_length * 2));
+        // console.log('Result', result);
+        content = content.slice(8 + _module_content_length * 2);
+        output = {
+            ...output,
+            ...result
+        };
+    } while(content);
+    return output;
+};
+
 module.exports = {
     crc16,
     date,
@@ -263,4 +283,5 @@ module.exports = {
     battery,
     timezone,
     temperature,
+    modulecontent4g,
 };
