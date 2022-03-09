@@ -56,7 +56,8 @@ module.exports = (_module, _content) => {
 		// case "002b": break; //Boot reason
 		// case "002c": {
 		// 	output = {
-		// 		time: // unix timestamp
+		// 		time: new Date(),
+		// 		// time: new Date(parseInt(_content, 16) * 1000)
 		// 	}
 		// }
 		// case "002e": break; //mileage stats
@@ -64,7 +65,7 @@ module.exports = (_module, _content) => {
 		// case "0031": break; //geofence triggers
 		case "0033": {
 			output = {
-				// time: 
+				time: new Date(parseInt(_content.slice(0, 8), 16) * 1000),
 				noSatellites: parseInt(_content.slice(8, 10), 16),
 				gps: [
 					parseInt(_content.slice(14, 22), 16) / 1800000,

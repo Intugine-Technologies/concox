@@ -304,28 +304,16 @@ module.exports = (__data) => {
     };
   }
   if (__case__ === "70") {
+    const prefix = `000570${__data.slice(-12, -8)}`;
+    const content = helpers.modulecontent4g(__data.slice(10, -6));
     return {
       input: __data,
       tag: 'GPS Position Packet',
       case: '70',
-      ...helpers.modulecontent4g(__data.slice(10, -6)),
-      // info: [{
-      //   module: //2 bit,
-      //   length: // 2 bit,
-      //   content: // m bit
-      // }] // __data.slice(8, -12)
-      // time: helpers.date(__data.slice(8, 20)),
-      // noSatellites: parseInt(__data.slice(21, 22), 16),
-      // gps: helpers.loc_at4(__data.slice(22, 38)),
-      // speed: parseInt(__data.slice(38, 40), 16),
-      // course: __data.slice(40, 44),
-      // cellTower: [parseInt(__data.slice(44, 48), 16),
-      //   parseInt(__data.slice(48, 50), 16),
-      //   parseInt(__data.slice(50, 54), 16),
-      //   parseInt(__data.slice(54, 60), 16),
-      // ],
+      ...content,
+      time: content.time || new Date(),
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
-      output: null,
+      output: content.to_return ? ("7979" + prefix.concat(helpers.crc16(prefix)) + "0d0a") : null,
     };
   }
   return {
