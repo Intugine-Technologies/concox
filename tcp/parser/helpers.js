@@ -59,14 +59,14 @@ const battery_profile = [
 
 const addZero = __num => (__num >= 10 ? __num : `0${__num}`);
 addZero_to_timezone = (str) => {
-  const __hr = str.split(":")[0]
-  const __min = str.split(":")[1]
-	if(__hr && __min){
-		const hr = __hr.length === 2 ? __hr : __hr.length === 1 ? "0" + __hr : "00"
-	 	 const min = __min.length === 2 ? __min : __min.length === 1 ? __min + "0" : "00"
- 		 return hr + ":" + min;
+    const __hr = str.split(":")[0]
+    const __min = str.split(":")[1]
+    if (__hr && __min) {
+        const hr = __hr.length === 2 ? __hr : __hr.length === 1 ? "0" + __hr : "00"
+        const min = __min.length === 2 ? __min : __min.length === 1 ? __min + "0" : "00"
+        return hr + ":" + min;
 
-	} return null;
+    } return null;
 };
 const timezone = (tzl) => {
     const gmt_sign = (parseInt(tzl.slice(-1), 16).toString(2).slice(-3, -2) || "0") === "0" ? "+" : "-";
@@ -87,7 +87,7 @@ const terminal_info = (__str) => {
 
 const batteryPercentage = (__data) => {
     const volt = parseFloat(parseInt(__data, 16) / 100);
-    if (!volt || typeof(volt) !== 'number') return null;
+    if (!volt || typeof (volt) !== 'number') return null;
     if (volt <= 3.65) return 0;
     if (volt >= 4.2) return 100;
     return (battery_profile.find(k => k[1] >= volt) || [null])[0]
@@ -139,7 +139,7 @@ const locAT4 = __str => [
     parseFloat(parseInt(__str.slice(8, 16), 16) / (1800000)),
 ];
 const voltage = (__str) => {
-    if(__str[0] === 'F'){
+    if (__str[0] === 'F') {
         return 'External Power'
     };
     switch (parseInt(__str, 16)) {
@@ -245,14 +245,14 @@ const ascii_to_hex = (__str) => {
 };
 
 const temperature = (__str) => {
-    return parseInt(__str.slice(2,6), 16)/10;
+    return parseInt(__str.slice(2, 6), 16) / 10;
 }
 
 const modulecontent4g = (__str = "") => {
     // console.log("Str", __str)
     let output = {};
     let content = __str;
-    do{
+    do {
         const _module = content.slice(0, 4);
         const _module_content_length = parseInt(content.slice(4, 8), 16);
         // console.log("Module", _module, _module_content_length, content.slice(8, 8 + _module_content_length * 2));
@@ -263,9 +263,281 @@ const modulecontent4g = (__str = "") => {
             ...output,
             ...result
         };
-    } while(content);
+    } while (content);
     return output;
 };
+
+const hex_to_decimal = (hexValue) => {
+    return parseInt(hexValue, 16);
+}
+
+function hex_to_binary(hex) {
+    return (parseInt(hex, 16).toString(2)).padStart(8, '0');
+}
+
+function getALM1Values(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'SMS Alarm',
+        '1': 'Phone Alarm',
+        '2': 'Network Alarm',
+        '3': 'Displacement Alarm',
+        '4': 'SMS Alarm',
+        '5': 'Phone Alarm',
+        '6': 'Network Alarm',
+        '7': 'Vibration Alarm'
+    }
+    const res = {};
+    for (let i = 0; i < 8; i++) {
+        res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+    }
+    return res;
+}
+
+function getALM2Values(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'SMS Alarm',
+        '1': 'Phone Alarm',
+        '2': 'Network Alarm',
+        '3': 'Low External Battery Alarm',
+        '4': 'SMS Alarm',
+        '5': 'Phone Alarm',
+        '6': 'Network Alarm',
+        '7': 'Low Internal Battery Alarm'
+    }
+    const res = {};
+    for (let i = 0; i < 8; i++) {
+        res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+    }
+    return res;
+}
+
+function getALM3Values(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'SMS Alarm',
+        '1': 'Phone Alarm',
+        '2': 'Network Alarm',
+        '3': 'Power Off Alarm',
+        '4': 'SMS Alarm',
+        '5': 'Phone Alarm',
+        '6': 'Network Alarm',
+        '7': 'Overspeed Alarm'
+    }
+    const res = {};
+    for (let i = 0; i < 8; i++) {
+        res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+    }
+    return res;
+}
+
+function getALM4Values(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'SMS Alarm',
+        '1': 'Phone Alarm',
+        '2': 'Network Alarm',
+        '3': 'Sound Alarm',
+        '4': 'SMS Alarm',
+        '5': 'Phone Alarm',
+        '6': 'Network Alarm',
+        '7': 'SOS Alarm'
+    }
+    const res = {};
+    for (let i = 0; i < 8; i++) {
+        res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+    }
+    return res;
+}
+
+function getSTA1Values(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'Anti-removal Alarm Status',
+        '1': 'Anti-removal button',
+        '4': 'Remotely Disarm',
+        '5': 'Manually Arm',
+        '6': 'Automatically Arm',
+        '7': 'Arm Status'
+    }
+    const res = {};
+    for (let i = 0; i < 8; i++) {
+        if (i == 2 || i == 3) {
+            continue;
+        }
+        if (i == 1) {
+            res[headings[i]] = binaryForm[7 - i] == 1 ? 'Pressed' : 'Released';
+        }
+        else if (i == 7) {
+            res[headings[i]] = binaryForm[7 - i] == 1 ? 'Armed' : 'Disarmed';
+        }
+        else {
+            res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+        }
+    }
+    return res;
+}
+
+function getDYDValues(hex) {
+    const binaryForm = hex_to_binary(hex);
+    const headings = {
+        '0': 'Oil/Electricity connection',
+        '1': 'Oil/Electricity cutoff',
+        '2': 'Deferred execution caused by un-located GPS',
+        '3': 'Deferred execution caused by overspeed',
+    }
+    const res = {};
+    for (let i = 0; i < 4; i++) {
+        res[headings[i]] = binaryForm[7 - i] == 1 ? true : false;
+    }
+    return res;
+}
+
+const getSubTagDetails = (sub_tag, hexData) => {
+    const data = {};
+    // console.log('hex: ',hexData);
+    if (sub_tag === '00') {
+        const decimalValue = hex_to_decimal(hexData) / 100;
+        data['name'] = 'External power voltage';
+        data['data'] = { 'Voltage': decimalValue };
+    }
+    if (sub_tag === '01' || sub_tag === '02' || sub_tag === '03') {
+        data['name'] = 'Customized';
+    }
+    if (sub_tag === '04') {
+        const parsedData = hex_to_ascii(hexData);
+        console.log('data', parsedData)
+        data['name'] = 'Terminal status synchronization';
+        const fields = parsedData.split(';');
+        const parsedFields = [];
+        fields.forEach((each) => {
+            // console.log(each);
+            const splitEach = each.split('=');
+            // console.log(splitEach);
+            if (splitEach[0] === 'ALM1') {
+                const res = getALM1Values(splitEach[1]);
+                res['tag'] = 'Alarm Bit 1'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'ALM2') {
+                const res = getALM2Values(splitEach[1]);
+                res['tag'] = 'Alarm Bit 2'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'ALM3') {
+                const res = getALM3Values(splitEach[1]);
+                res['tag'] = 'Alarm Bit 3'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'ALM4') {
+                const res = getALM4Values(splitEach[1]);
+                res['tag'] = 'Alarm Bit 4'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'STA1') {
+                const res = getSTA1Values(splitEach[1]);
+                res['tag'] = 'Status Bit 1'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'DYD') {
+                const res = getDYDValues(splitEach[1]);
+                res['tag'] = 'Fuel/Electricity Cutoff Status'
+                parsedFields.push(res);
+            }
+            if (splitEach[0] === 'SOS') {
+                const sosNumbers = splitEach[1].split(',');
+                // console.log(sosNumbers);
+                const sosList = [];
+                sosNumbers.forEach((num) => {
+                    if (num != '') {
+                        sosList.push(num);
+                    }
+                })
+                // console.log(sosList);
+                if (sosList.length !== 0) {
+                    const res = {};
+                    res['tag'] = 'SOS Number';
+                    res['SOS Numbers'] = sosList;
+                    parsedFields.push(res);
+                }
+            }
+            if (splitEach[0] === 'CENTER') {
+                //adopt ASCII to transmit
+                // console.log(splitEach[1]);
+                if (splitEach[1] !== '') {
+                    const res = {};
+                    res['tag'] = 'Centre Number';
+                    res['Centre Number'] = splitEach[1];
+                    parsedFields.push(res);
+                }
+            }
+            if (splitEach[0] === 'FENCE') {
+                //adopt ASCII to transmit
+                // console.log(splitEach[1]);
+                if (splitEach[1] !== '') {
+                    const res = {};
+                    res['tag'] = 'GeoFence';
+                    res['GeoFence'] = splitEach[1];
+                    parsedFields.push(res);
+                }
+            }
+            if (splitEach[0] === 'MODE') {
+                //adopt ASCII to transmit
+                // console.log(splitEach[1]);
+                if (splitEach[1] !== '') {
+                    const res = {};
+                    res['tag'] = 'Mode';
+                    res['Mode'] = splitEach[1].split(',');
+                    parsedFields.push(res);
+                }
+            }
+            // if(splitEach[0]==='IMSI'){
+            //     if(splitEach[1]!==''){
+            //         parsedFields['IMSI'] = splitEach[1];
+            //     }
+            // }
+            // if(splitEach[0]==='ICCID'){
+            //     if(splitEach[1]!==''){
+            //         parsedFields['ICCID'] = splitEach[1];
+            //     }
+            // }
+            // if(splitEach[0]==='STARTTIME'){
+            //     if(splitEach[1]!==''){
+            //         parsedFields['Log in successfully'] = splitEach[1];
+            //     }
+            // }
+            // if(splitEach[0]==='LOGINPACKET'){
+            //     if(splitEach[1]!==''){
+            //         parsedFields['Number of login packets'] = splitEach[1];
+            //     }
+            // }
+            // if(splitEach[0]==='RESTART'){
+            //     if(splitEach[1]!==''){
+            //         parsedFields['Reboot times'] = splitEach[1];
+            //     }
+            // }
+        })
+        data['sub_tag_data'] = parsedFields;
+    }
+    if (sub_tag === '05') {
+        data['name'] = 'Door status';
+    }
+    if (sub_tag === '08') {
+        data['name'] = 'Self-detection parameters';
+    }
+    if (sub_tag === '11') {
+        data['name'] = 'Vibration times';
+    }
+    if (sub_tag === '22') {
+        data['name'] = 'Device status information';
+    }
+    return data;
+}
+
+const informationTransmissionHelpers = {
+    'getSubTagDetails': getSubTagDetails
+}
 
 module.exports = {
     crc16,
@@ -284,4 +556,5 @@ module.exports = {
     timezone,
     temperature,
     modulecontent4g,
+    informationTransmissionHelpers,
 };

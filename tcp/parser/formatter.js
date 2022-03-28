@@ -1,5 +1,6 @@
 const moment = require('moment');
 const helpers = require('./helpers');
+const infoTransHelpers = helpers.informationTransmissionHelpers;
 
 module.exports = (__data) => {
   const __case__ = __data.slice(0, 4) === "7878" ? __data.slice(6, 8) : __data.slice(8, 10);
@@ -315,6 +316,20 @@ module.exports = (__data) => {
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: content.to_return ? ("7979" + prefix.concat(helpers.crc16(prefix)) + "0d0a") : null,
     };
+  }
+  if(__case__ === "94"){
+    const sub_tag_code = __data.slice(10,12);
+    const subTagData = infoTransHelpers.getSubTagDetails(sub_tag_code,__data.slice(12,-12));
+    const data = {
+      input:__data,
+      tag: 'Information Transmission',
+      case:'94',
+      sub_tag: subTagData.name,
+      sub_tag_case: sub_tag_code,
+      // sub_tag_details: JSON.stringify(subTagData.sub_tag_data),
+      sub_tag_details: subTagData.sub_tag_data
+    };
+    return data;
   }
   return {
     input: __data,
