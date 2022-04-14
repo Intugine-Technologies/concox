@@ -400,14 +400,14 @@ const getSubTagDetails = (sub_tag, hexData) => {
     if (sub_tag === '00') {
         const decimalValue = hex_to_decimal(hexData) / 100;
         data['name'] = 'External power voltage';
-        data['data'] = { 'Voltage': decimalValue };
+        data['sub_tag_data'] = { 'Voltage': decimalValue };
     }
     if (sub_tag === '01' || sub_tag === '02' || sub_tag === '03') {
         data['name'] = 'Customized';
     }
     if (sub_tag === '04') {
         const parsedData = hex_to_ascii(hexData);
-        console.log('data', parsedData)
+        // console.log('data', parsedData)
         data['name'] = 'Terminal status synchronization';
         const fields = parsedData.split(';');
         const parsedFields = [];
@@ -521,13 +521,46 @@ const getSubTagDetails = (sub_tag, hexData) => {
         data['sub_tag_data'] = parsedFields;
     }
     if (sub_tag === '05') {
+        const binaryForm = hex_to_binary(hexData);
+        const headings = {
+            '0': 'Door Status',
+            '1': 'Triggering Status',
+            '2': 'IO Status'
+        }
+        const parsedFields = {};
+        for (let i = 0; i < 3; i++) {
+            if(i==0){
+                parsedFields[headings[i]] = binaryForm[3 - i] == 1 ? true : false;
+            }
+            if(i==1){
+                parsedFields[headings[i]] = binaryForm[3 - i] == 1 ? 'High triggering' : 'Low triggering';
+            }
+            if(i==2){
+                parsedFields[headings[i]] = binaryForm[3 - i] == 1 ? 'High' : 'Low';
+            }
+        }
         data['name'] = 'Door status';
+        data['sub_tag_data'] = parsedFields;
     }
     if (sub_tag === '08') {
+        const parsedData = hex_to_ascii(hexData);
         data['name'] = 'Self-detection parameters';
+        data['sub_tag_data'] = parsedData;
+
+    }
+    if (sub_tag === '0a') {
+        const parsedData = {
+            'IMEI': hexData.slice(0,9),
+            'IMSI':hexData.slice(9,17),
+            'ICCID':hexData.slice(17,27)
+        }
+        data['name'] = 'ICCID';
+        data['sub_tag_data'] = parsedData;
     }
     if (sub_tag === '11') {
+        const parsedData = hex_to_decimal(hexData);
         data['name'] = 'Vibration times';
+        data['sub_tag_data'] = parsedData;
     }
     if (sub_tag === '22') {
         data['name'] = 'Device status information';
