@@ -1,5 +1,6 @@
 const moment = require('moment');
 const helpers = require('./helpers');
+const infoTransHelpers = helpers.informationTransmissionHelpers;
 
 module.exports = (__data) => {
   const __case__ = __data.slice(0, 4) === "7878" ? __data.slice(6, 8) : __data.slice(8, 10);
@@ -257,6 +258,7 @@ module.exports = (__data) => {
       voltage: helpers.voltage(__data.slice(26, 28)),
       battery: helpers.battery(helpers.voltage(__data.slice(26, 28))),
       gsmStrength: helpers.gsmStrength(__data.slice(28, 30)),
+      alarm:helpers.alarm(__data.slice(30, 32)),
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: helpers.appendStartEnd(prefix.concat(helpers.crc16(prefix))),
     };
@@ -315,6 +317,99 @@ module.exports = (__data) => {
       info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
       output: content.to_return ? ("7979" + prefix.concat(helpers.crc16(prefix)) + "0d0a") : null,
     };
+  }
+  if(__case__ === "94"){
+    const sub_tag_code = __data.slice(10,12);
+    const subTagData = infoTransHelpers.getSubTagDetails(sub_tag_code,__data.slice(12,-12));
+    const data = {
+      input:__data,
+      tag: 'Information Transmission',
+      case:'94',
+      sub_tag: subTagData.name,
+      sub_tag_case: sub_tag_code,
+      sub_tag_details: subTagData.sub_tag_data
+    };
+
+    // const fs = require('fs');
+    // fs.writeFile('./test_data.json', JSON.stringify(data),(err)=>{
+    //   if(err){
+    //     throw err;
+    //   }
+    // });
+  
+    return data;
+  }
+  if(__case__ === "80"){
+    const data = {
+      input: __data,
+      case: '80',
+      tag: 'Online command sent by server',
+      serverFlag: (parseInt(__data.slice(10,18), 16).toString(2)).padStart(8, '0'),
+    };
+    const check = __data.slice(18,-12).slice(-4);
+    if(check==='0001' || check==='0002'){
+      data['commandContent'] = helpers.hex_to_ascii(__data.slice(18,-16));
+      if(check==='0001'){
+        data['language'] = "Chinese";
+      }
+      else if(check==='0002'){
+        data['language'] = "English";
+      }
+    }
+    else{
+      data['commandContent'] = helpers.hex_to_ascii(__data.slice(18,-12));
+    }
+    return data;
+  }
+  if(__case__ === "2c"){
+    const data = {
+      input: __data,
+      case: '2C',
+      tag: 'WIFI information packet',
+      time: helpers.date(__data.slice(8,20)),
+      mobileCountryCode:parseInt(__data.slice(20, 24), 16),
+      mobileNetworkCode:parseInt(__data.slice(24, 26), 16),
+    };
+    const cellTower = [];
+    for(let i=0;i<7;i++){
+      const temp = {};
+      temp['LAC'] = parseInt(__data.slice(26+12*i, 30+12*i), 16)
+      temp['CI'] = parseInt(__data.slice(30+12*i, 36+12*i), 16)
+      temp['RSSI'] = parseInt(__data.slice(36+12*i, 38+12*i), 16)
+      cellTower.push(temp);
+    }
+    data['cellTower'] = cellTower
+    data['timeLeads'] = parseInt(__data.slice(110, 112), 16);
+    data['WiFiQuality'] = parseInt(__data.slice(112, 114), 16);
+
+    const remaining = __data.slice(114, -12);
+    let dataLen = remaining.length;
+    const wifi = [];
+    let pos = 0;
+    while(pos<dataLen){
+      const temp = {};
+      temp['WiFi MAC'] = parseInt(remaining.slice(pos,pos+12),16);
+      pos+=12;
+      temp['WiFi Strength'] = parseInt(remaining.slice(pos,pos+2),16);
+      pos+=2;
+      const ssidLen = parseInt(remaining.slice(pos,pos+2),16);
+      temp['WiFi SSID Length'] = ssidLen;
+      pos+=2;
+      temp['WiFi SSID'] = parseInt(remaining.slice(pos,pos+2*ssidLen),16);
+      pos = pos+2*ssidLen;
+      wifi.push(temp);
+    }
+
+    data['wifiDetails'] = wifi;
+
+    // const fs = require('fs');
+    // fs.writeFile('./test_data.json', JSON.stringify(data),(err)=>{
+    //   if(err){
+    //     throw err;
+    //   }
+    // });
+    
+    return data;
   }
   return {
     input: __data,
