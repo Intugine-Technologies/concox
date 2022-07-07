@@ -15,7 +15,7 @@
     "body-parser": "^1.19.0",
     "event-loop-inspector": "^1.2.2",
     "express": "^4.17.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mqtt": "^3.0.0",
     "redis": "^3.0.2"
   }
