@@ -7,4 +7,7 @@ const client = require("mqtt").connect(config.BROKER_URL, {
 client.on("connect", function () {
     console.log("Connected to Broker");
 });
+client.on('error', (e) => {
+    console.error("MQTT error", e)
+});
 module.exports = client;
