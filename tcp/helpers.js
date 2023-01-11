@@ -72,7 +72,7 @@ object__.data_middleware = data => {
                         ...k,
                         device: r.id,
                         client: r.client,
-                        speed: k.speed || r.speed || 0,
+                        speed: k.speed || 0,
                         gps: k.gps ||
                             (["13", "23"].indexOf(k.case) > -1 ? r.gps : null),
                         battery: k.battery || r.battery
