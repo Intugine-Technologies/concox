@@ -11,14 +11,19 @@ redis_client.on("error", (err) => {
 
 const update_redis = (imei, data) => {
     console.log('update redis', imei, data);
-    redis_client.get(imei, (err, result) => {
-        if (err) console.error('Error', err);
-        else {
+    redis_client.get(imei)
+        .then((result) => {
             redis_client.set(imei, JSON.stringify({ ...JSON.parse(result), ...data }));
-        }
-    });
+        })
+        .catch((err) => {
+            console.error('Error', err);
+        });
 };
 
+
+(async () => {
+    await redis_client.connect();
+})();
 const obj = {
     set: data => {
         if (data) {
@@ -27,18 +32,17 @@ const obj = {
     },
     get: imei =>
         new Promise((resolve, reject) => {
+            let device = null;
             api_handler({ url: `/device/${imei}` })
                 .then(r => {
-                    redis_client.get(imei, (err, result) => {
-                        if (err) reject(err);
-                        else {
-                            console.log('Data manager get', result);
-                            resolve({
-                                ...JSON.parse(result),
-                                id: r.data && r.data.id ? r.data.id : "NA",
-                                client: r.data ? r.data.client : null
-                            });
-                        }
+                    device = r;
+                    return redis_client.get(imei);
+                })
+                .then((result) => {
+                    resolve({
+                        ...JSON.parse(result || "{}"),
+                        id: device.data && device.data.id ? device.data.id : "NA",
+                        client: device.data ? device.data.client : null
                     });
                 })
                 .catch(e => {
