@@ -140,7 +140,14 @@ server.on("connection", (socket) => {
                         )
                     );
                 });
-        } else helpers.send_invalid_data_to_api(data);
+        } else helpers.send_invalid_data_to_api(data.map(k => ({
+            ...k,
+            imei: helpers.imei_manager.get(
+                          socket.remoteAddress,
+                          socket.remotePort
+                      ),
+            socket: client
+        })));
     });
     socket.on("error", (err) => {
         console.error({ event: "error", err: err.message, client });
