@@ -10,7 +10,7 @@ const object__ = {
         api_handler({
                 url: `/invalid_data`,
                 method: "POST",
-                data: { data }
+                data: data
             })
             .then(r => {
                 console.info({ event: "Invalid Data Sent to API", data });

@@ -140,7 +140,7 @@ server.on("connection", (socket) => {
                         )
                     );
                 });
-        } else helpers.send_invalid_data_to_api(data.map(k => ({
+        } else helpers.send_invalid_data_to_api(parsed__.map(k => ({
             ...k,
             imei: helpers.imei_manager.get(
                           socket.remoteAddress,
