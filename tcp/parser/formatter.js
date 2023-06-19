@@ -111,6 +111,25 @@ module.exports = (__data) => {
       output: null,
     };
   }
+  if (__case__ === 'a0') {
+    return {
+      input: __data,
+      tag: 'GPS Location Packet',
+      case: 'a0',
+      time: helpers.date(__data.slice(8, 20)),
+      noSatellites: parseInt(__data.slice(21, 22), 16),
+      gps: helpers.loc_at4(__data.slice(22, 38)),
+      speed: parseInt(__data.slice(38, 40), 16),
+      course: __data.slice(40, 44),
+      cellTower: [parseInt(__data.slice(44, 48), 16),
+        parseInt(__data.slice(48, 50), 16),
+        parseInt(__data.slice(50, 58), 16),
+        parseInt(__data.slice(58, 74), 16),
+      ],
+      info_serial_no: parseInt(__data.split("").reverse().join("").slice(8, 12).split("").reverse().join(""), 16),
+      output: null,
+    };
+  }
   if (__case__ === '23') {
     const prefix = `0523${__data.slice(18, 22)}`;
     return {
